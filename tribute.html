@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marie Curie - A Scientific Pioneer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        #main {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header {
+            background: linear-gradient(to right, #2c3e50, #4a6491);
+            color: white;
+            padding: 50px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.1)"/></svg>');
+            background-size: cover;
+        }
+
+        #title {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        #img-div {
+            padding: 30px;
+            background: #f8f9fa;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        #image {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            margin: 0 auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.5s ease;
+        }
+
+        #image:hover {
+            transform: scale(1.02);
+        }
+
+        #img-caption {
+            margin-top: 15px;
+            font-style: italic;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        #tribute-info {
+            padding: 40px 30px;
+            background: white;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(to right, #3498db, #2c3e50);
+        }
+
+        .timeline {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .timeline-item {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timeline-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .timeline-item::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            background: linear-gradient(to bottom, #3498db, #2c3e50);
+        }
+
+        .year {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .achievements {
+            margin: 30px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .achievement-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .achievement-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .achievement-card h3 {
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        blockquote {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 30px;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 10px;
+            font-style: italic;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        blockquote::before, blockquote::after {
+            content: """;
+            font-size: 4rem;
+            color: #3498db;
+            position: absolute;
+            opacity: 0.3;
+        }
+
+        blockquote::before {
+            top: 10px;
+            left: 20px;
+        }
+
+        blockquote::after {
+            bottom: 10px;
+            right: 20px;
+        }
+
+        .quote-text {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            line-height: 1.8;
+        }
+
+        .quote-author {
+            text-align: right;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        #tribute-link {
+            display: inline-block;
+            padding: 12px 25px;
+            background: linear-gradient(to right, #3498db, #2c3e50);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #tribute-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(to right, #2980b9, #34495e);
+        }
+
+        .legacy {
+            margin-top: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            #title {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .section-title {
+                font-size: 1.7rem;
+            }
+            
+            .timeline-item {
+                padding: 15px;
+            }
+            
+            header, #tribute-info, #img-div, footer {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #title {
+                font-size: 2rem;
+            }
+            
+            .achievements {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main id="main">
+        <header>
+            <h1 id="title">Marie Curie</h1>
+            <p class="subtitle">Pioneer of Radioactivity and First Woman to Win a Nobel Prize</p>
+        </header>
+
+        <figure id="img-div">
+            <img id="image" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Marie_Curie_c._1920s.jpg/800px-Marie_Curie_c._1920s.jpg" alt="Marie Curie in her laboratory">
+            <figcaption id="img-caption">Marie Curie in her laboratory, where she conducted groundbreaking research on radioactivity.</figcaption>
+        </figure>
+
+        <section id="tribute-info">
+            <h2 class="section-title">The Life of a Scientific Trailblazer</h2>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="year">1867</div>
+                    <p>Maria Salomea Skłodowska is born in Warsaw, Poland, then part of the Russian Empire.</p>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="year">1891</div>
+                    <p>Moves to Paris to study at the Sorbonne, where she would earn degrees in Physics and Mathematical Sciences.</p>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="year">1895</div>
+                    <p>Marries Pierre Curie, beginning one of science's most famous partnerships.</p>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="year">1898</div>
+                    <p>Discovers the elements polonium (named after her native Poland) and radium.</p>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="year">1903</div>
+                    <p>Becomes the first woman to win a Nobel Prize, sharing the Physics prize with Pierre Curie and Henri Becquerel for their work on radioactivity.</p>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="year">1906</div>
+                    <p>After Pierre's tragic death, she takes over his professorship at the Sorbonne, becoming the first woman to teach there.</p>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="year">1911</div>
+                    <p>Wins her second Nobel Prize, this time in Chemistry, for the discovery of radium and polonium, making her the first person to win Nobel Prizes in two different sciences.</p>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="year">1914-1918</div>
+                    <p>Develops mobile X-ray units during World War I, known as "Little Curies," to help treat wounded soldiers.</p>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="year">1934</div>
+                    <p>Dies from aplastic anemia, likely caused by prolonged exposure to radiation during her research.</p>
+                </div>
+            </div>
+
+            <h2 class="section-title">Major Achievements</h2>
+            <div class="achievements">
+                <div class="achievement-card">
+                    <h3>Pioneering Radioactivity Research</h3>
+                    <p>Coined the term "radioactivity" and developed the theory of radioactivity</p>
+                </div>
+                <div class="achievement-card">
+                    <h3>Discovery of Elements</h3>
+                    <p>Discovered polonium and radium, expanding the periodic table</p>
+                </div>
+                <div class="achievement-card">
+                    <h3>Medical Applications</h3>
+                    <p>Pioneered the use of radiation in medicine, particularly for cancer treatment</p>
+                </div>
+                <div class="achievement-card">
+                    <h3>Double Nobel Laureate</h3>
+                    <p>First person to win Nobel Prizes in two different scientific fields</p>
+                </div>
+            </div>
+
+            <blockquote>
+                <p class="quote-text">"Nothing in life is to be feared, it is only to be understood. Now is the time to understand more, so that we may fear less."</p>
+                <p class="quote-author">- Marie Curie</p>
+            </blockquote>
+
+            <div class="legacy">
+                <h2 class="section-title">Lasting Legacy</h2>
+                <p>Marie Curie's groundbreaking work laid the foundation for modern nuclear physics and cancer treatments. She broke barriers for women in science and inspired generations of researchers. Her notebooks remain so radioactive that they are stored in lead-lined boxes, a testament to her dedication and the dangers she faced in pursuit of knowledge.</p>
+                <p>The Curie family legacy continued with her daughter Irène Joliot-Curie, who also won a Nobel Prize in Chemistry in 1935.</p>
+            </div>
+        </section>
+
+        <footer>
+            <p>To learn more about this remarkable scientist, visit her <a id="tribute-link" href="https://en.wikipedia.org/wiki/Marie_Curie" target="_blank">Wikipedia page</a>.</p>
+        </footer>
+    </main>
+</body>
+</html>
