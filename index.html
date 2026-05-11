@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purrfect Translator - Speak Cat Language!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Comic Sans MS', 'Marker Felt', cursive, sans-serif;
+        }
+        
+        :root {
+            --primary: #ff6b35;
+            --secondary: #ffcc33;
+            --accent: #ff9966;
+            --light: #fff9e6;
+            --dark: #333333;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 600px;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border: 8px solid white;
+        }
+        
+        .cat-ears {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 60px;
+            background-color: var(--accent);
+            border-radius: 50% 50% 0 0;
+            z-index: -1;
+        }
+        
+        .cat-ears::before, .cat-ears::after {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 70px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            top: -35px;
+        }
+        
+        .cat-ears::before {
+            left: 10px;
+            transform: rotate(-25deg);
+            box-shadow: -2px -2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .cat-ears::after {
+            right: 10px;
+            transform: rotate(25deg);
+            box-shadow: 2px -2px 5px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 2.8rem;
+            text-shadow: 3px 3px 0 var(--secondary);
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            color: var(--dark);
+            margin-bottom: 30px;
+            font-size: 1.3rem;
+            opacity: 0.8;
+        }
+        
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            background: var(--light);
+            padding: 10px;
+            border-radius: 50px;
+            margin-bottom: 20px;
+            border: 2px dashed var(--accent);
+        }
+        
+        .stat {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--dark);
+            opacity: 0.7;
+        }
+        
+        .input-section {
+            margin-bottom: 20px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 3px dashed var(--accent);
+            border-radius: 20px;
+            font-size: 1.1rem;
+            resize: none;
+            margin-bottom: 15px;
+            background-color: var(--light);
+            transition: all 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border: 3px solid var(--primary);
+            box-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: linear-gradient(to bottom, var(--accent), var(--primary));
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 0 #cc5500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 0 #cc5500;
+        }
+        
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 0 #cc5500;
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            transform: none;
+            box-shadow: 0 4px 0 #cc5500;
+            cursor: not-allowed;
+        }
+        
+        .secondary-btn {
+            background: linear-gradient(to bottom, #66ccff, #3399ff);
+            box-shadow: 0 4px 0 #0066cc;
+        }
+        
+        .secondary-btn:hover {
+            box-shadow: 0 6px 0 #0066cc;
+        }
+        
+        .secondary-btn:active {
+            box-shadow: 0 2px 0 #0066cc;
+        }
+        
+        .output-section {
+            background-color: var(--light);
+            border-radius: 20px;
+            padding: 20px;
+            min-height: 120px;
+            border: 3px dashed var(--secondary);
+            margin-top: 20px;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .output-section.purring {
+            animation: purr 0.1s infinite;
+        }
+        
+        @keyframes purr {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+        
+        #translation {
+            font-size: 1.3rem;
+            color: var(--primary);
+            line-height: 1.5;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .cat-icon {
+            font-size: 2rem;
+            animation: bounce 2s infinite;
+            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.2));
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .paw-print {
+            position: absolute;
+            font-size: 1.5rem;
+            opacity: 0.3;
+        }
+        
+        .paw1 { top: 10px; left: 15px; }
+        .paw2 { bottom: 10px; right: 15px; }
+        
+        .share-section {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255, 204, 51, 0.1);
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .share-section.visible {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .history-section {
+            margin-top: 25px;
+            text-align: left;
+            background-color: #fff0e0;
+            padding: 15px;
+            border-radius: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .history-section h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .history-item {
+            margin: 8px 0;
+            padding: 8px;
+            border-bottom: 1px dotted var(--accent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .history-text {
+            flex: 1;
+        }
+        
+        .human-text {
+            color: #666;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+        
+        .cat-text {
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #ff4444;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 5px;
+            box-shadow: none;
+        }
+        
+        .delete-btn:hover {
+            transform: scale(1.2);
+            box-shadow: none;
+        }
+        
+        .examples {
+            margin-top: 25px;
+            text-align: left;
+            background-color: #fff0e0;
+            padding: 15px;
+            border-radius: 15px;
+        }
+        
+        .examples h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .example-item {
+            margin: 8px 0;
+            padding: 5px;
+            border-bottom: 1px dotted var(--secondary);
+        }
+        
+        .human {
+            color: #666;
+            font-style: italic;
+        }
+        
+        .cat {
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .footer {
+            margin-top: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        /* Cat animation in corner */
+        .corner-cat {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 3rem;
+            animation: wander 20s infinite linear;
+            z-index: -1;
+            opacity: 0.1;
+        }
+        
+        @keyframes wander {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-50px, -30px) rotate(5deg); }
+            50% { transform: translate(30px, -60px) rotate(-5deg); }
+            75% { transform: translate(-30px, 20px) rotate(3deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+        
+        @media (max-width: 500px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            button {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .stats-bar {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="corner-cat">🐈</div>
+    
+    <div class="container">
+        <div class="cat-ears"></div>
+        <h1>Purrfect Translator</h1>
+        <p class="subtitle">Translate human words into feline language!</p>
+        
+        <div class="stats-bar">
+            <div class="stat">
+                <span class="stat-value" id="translation-count">0</span>
+                <span class="stat-label">Translations</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" id="meow-count">0</span>
+                <span class="stat-label">Meows Today</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" id="purr-count">0</span>
+                <span class="stat-label">Purrs Generated</span>
+            </div>
+        </div>
+        
+        <div class="input-section">
+            <textarea id="input-text" placeholder="Type your message here... (e.g., I love you, Are you hungry?)"></textarea>
+            <div class="button-group">
+                <button id="translate-btn">
+                    <span>🐱</span> Translate to Cat
+                </button>
+                <button id="speak-btn" class="secondary-btn">
+                    <span>🔊</span> Speak It
+                </button>
+                <button id="clear-btn">
+                    <span>🧹</span> Clear
+                </button>
+            </div>
+        </div>
+        
+        <div class="output-section" id="output-section">
+            <div class="paw-print paw1">🐾</div>
+            <div id="translation">
+                <span>Your translation will appear here</span>
+            </div>
+            <div class="paw-print paw2">🐾</div>
+            
+            <div class="share-section" id="share-section">
+                <button id="share-btn" class="secondary-btn">
+                    <span>📤</span> Share This Translation
+                </button>
+            </div>
+        </div>
+        
+        <div class="history-section">
+            <h3>Translation History</h3>
+            <div id="history-list">
+                <!-- History items will be added here -->
+            </div>
+        </div>
+        
+        <div class="examples">
+            <h3>Example Translations</h3>
+            <div class="example-item">
+                <span class="human">Hello</span> → <span class="cat">Meow! Purr...</span>
+            </div>
+            <div class="example-item">
+                <span class="human">I'm hungry</span> → <span class="cat">Meeeooow! Mrow! (rubs against legs)</span>
+            </div>
+            <div class="example-item">
+                <span class="human">I love you</span> → <span class="cat">Purrrrr... Blink-blink</span>
+            </div>
+            <div class="example-item">
+                <span class="human">Go away</span> → <span class="cat">Hiss! Grrr...</span>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Disclaimer: This is a fun app. Actual cat communication may vary! 😸</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const inputText = document.getElementById('input-text');
+            const translateBtn = document.getElementById('translate-btn');
+            const speakBtn = document.getElementById('speak-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const shareBtn = document.getElementById('share-btn');
+            const translation = document.getElementById('translation');
+            const outputSection = document.getElementById('output-section');
+            const shareSection = document.getElementById('share-section');
+            const historyList = document.getElementById('history-list');
+            const translationCount = document.getElementById('translation-count');
+            const meowCount = document.getElementById('meow-count');
+            const purrCount = document.getElementById('purr-count');
+            
+            // Statistics
+            let stats = {
+                translations: parseInt(localStorage.getItem('translationCount')) || 0,
+                meows: parseInt(localStorage.getItem('meowCount')) || 0,
+                purrs: parseInt(localStorage.getItem('purrCount')) || 0
+            };
+            
+            // Load translation history
+            let history = JSON.parse(localStorage.getItem('translationHistory')) || [];
+            
+            // Update stats display
+            function updateStats() {
+                translationCount.textContent = stats.translations;
+                meowCount.textContent = stats.meows;
+                purrCount.textContent = stats.purrs;
+                
+                // Save to localStorage
+                localStorage.setItem('translationCount', stats.translations);
+                localStorage.setItem('meowCount', stats.meows);
+                localStorage.setItem('purrCount', stats.purrs);
+            }
+            
+            // Update history display
+            function updateHistory() {
+                historyList.innerHTML = '';
+                history.slice(0, 5).forEach((item, index) => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    historyItem.innerHTML = `
+                        <div class="history-text">
+                            <div class="human-text">${item.original}</div>
+                            <div class="cat-text">${item.translation}</div>
+                        </div>
+                        <button class="delete-btn" data-index="${index}">🗑️</button>
+                    `;
+                    historyList.appendChild(historyItem);
+                });
+                
+                // Add event listeners to delete buttons
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        history.splice(index, 1);
+                        localStorage.setItem('translationHistory', JSON.stringify(history));
+                        updateHistory();
+                    });
+                });
+            }
+            
+            // Initialize stats and history
+            updateStats();
+            updateHistory();
+            
+            // Cat language dictionary
+            const catDictionary = {
+                'hello': 'Meow! Purr...',
+                'hi': 'Meow!',
+                'hey': 'Mrow?',
+                'hungry': 'Meeeooow! Mrow! (rubs against legs)',
+                'food': 'Prrrrt! Mrow! (dashes to food bowl)',
+                'eat': 'Prrrrt! Mrow! (dashes to food bowl)',
+                'love': 'Purrrrr... Blink-blink',
+                'like': 'Purr... (headbutts you)',
+                'happy': 'Purrrrrrrrr (kneads blanket)',
+                'play': 'Prrt! (pounces on toy)',
+                'toy': 'Mrow! (chases after it)',
+                'sleep': 'Zzz... (curls into a ball)',
+                'tired': 'Yawn... (stretches out)',
+                'no': 'Hiss!',
+                'stop': 'Grrr... (flattens ears)',
+                'go away': 'Hiss! Grrr...',
+                'mad': 'Hiss! Swish-tail',
+                'angry': 'Growl! Hiss!',
+                'scared': 'Pffft! (arches back)',
+                'vet': 'Hiss! Hide under bed!',
+                'outside': 'Mrow! (paces by door)',
+                'pet': 'Purr... (rolls over)',
+                'good': 'Purr purr purr',
+                'bad': 'Hiss! (flicks tail)',
+                'cat': 'Meow! (licks paw)',
+                'kitty': 'Mew! (tilts head)',
+                'friend': 'Purr... (rubs against you)',
+                'home': 'Purrr... (curls up on favorite spot)',
+                'you': 'Meow? (looks at you)',
+                'me': 'Mrow? (tilts head)',
+                'what': 'Mrow? (perks ears)',
+                'why': 'Meeeooow? (wide-eyed)',
+                'where': 'Prrt? (looks around)',
+                'when': 'Mrow? (blinks slowly)',
+                'how': 'Mrrow? (head tilt)',
+                'yes': 'Prrt! (tail up)',
+                'ok': 'Purr (slow blink)',
+                'please': 'Mew? (paws at you gently)',
+                'thank': 'Purr-purr (headbutt)',
+                'welcome': 'Mrrow! (tail quiver)',
+                'sorry': 'Mew... (ears back)',
+                'morning': 'Mrow! (stretches dramatically)',
+                'night': 'Purr... (curls up)',
+                'bird': 'Ekekek! (chatters at window)',
+                'mouse': 'Prrrrt! (crouches low)',
+                'fish': 'Mrow! (paws at it)',
+                'treat': 'Prrt! Mrow! (sits pretty)'
+            };
+            
+            // Common cat phrases for full sentences
+            const catPhrases = [
+                "Purrrrr... (kneads paws)",
+                "Meow! (rubs against your leg)",
+                "Mrow? (tilts head curiously)",
+                "Prrt! (tail twitches)",
+                "Mew! (paws at something)",
+                "Purr purr purr (curls up contentedly)",
+                "Hiss! (arches back dramatically)",
+                "Meeeooow! (demanding tone)",
+                "Mrrow! (playful chirp)",
+                "Prrrrt? (questioning sound)",
+                "Mew... (soft, plaintive cry)",
+                "Grrr... (low warning growl)",
+                "Pffft! (surprised spit)",
+                "Ekekek! (excited chattering)",
+                "Yowl! (loud, drawn-out cry)"
+            ];
+            
+            // Translate function
+            function translateToCat(text) {
+                if (!text.trim()) {
+                    return "Please enter some text to translate!";
+                }
+                
+                const words = text.toLowerCase().split(/\s+/);
+                let result = [];
+                
+                // Check if any words match our dictionary
+                for (let word of words) {
+                    // Remove punctuation
+                    word = word.replace(/[.,!?;:]$/, '');
+                    
+                    if (catDictionary[word]) {
+                        result.push(catDictionary[word]);
+                    }
+                }
+                
+                // If we found specific translations, use them
+                if (result.length > 0) {
+                    // Add some variety by occasionally adding extra cat sounds
+                    if (Math.random() > 0.7) {
+                        result.push(catPhrases[Math.floor(Math.random() * catPhrases.length)]);
+                    }
+                    
+                    return result.join(' ');
+                }
+                
+                // Otherwise, generate a random cat response
+                const numPhrases = Math.min(Math.max(1, Math.floor(words.length / 3)), 4);
+                let response = [];
+                
+                for (let i = 0; i < numPhrases; i++) {
+                    response.push(catPhrases[Math.floor(Math.random() * catPhrases.length)]);
+                }
+                
+                return response.join(' ');
+            }
+            
+            // Add to history
+            function addToHistory(original, translation) {
+                history.unshift({ original, translation });
+                if (history.length > 10) history.pop(); // Keep only last 10
+                localStorage.setItem('translationHistory', JSON.stringify(history));
+                updateHistory();
+            }
+            
+            // Update statistics
+            function updateTranslationStats(catTranslation) {
+                stats.translations++;
+                
+                // Count meows and purrs
+                if (catTranslation.includes('Meow') || catTranslation.includes('Mrow') || catTranslation.includes('Mew')) {
+                    stats.meows++;
+                }
+                if (catTranslation.includes('Purr')) {
+                    stats.purrs++;
+                }
+                
+                updateStats();
+            }
+            
+            // Event listeners
+            translateBtn.addEventListener('click', function() {
+                const input = inputText.value;
+                const catTranslation = translateToCat(input);
+                
+                // Add purring animation
+                outputSection.classList.add('purring');
+                setTimeout(() => {
+                    outputSection.classList.remove('purring');
+                }, 500);
+                
+                // Clear previous content
+                translation.innerHTML = '';
+                
+                // Add cat icons for fun
+                const catIcon1 = document.createElement('span');
+                catIcon1.className = 'cat-icon';
+                catIcon1.textContent = '🐱';
+                
+                const catIcon2 = document.createElement('span');
+                catIcon2.className = 'cat-icon';
+                catIcon2.textContent = '🐈';
+                
+                // Add translation text
+                const translationText = document.createElement('span');
+                translationText.textContent = catTranslation;
+                translationText.className = 'translation-text';
+                
+                // Append everything
+                translation.appendChild(catIcon1);
+                translation.appendChild(translationText);
+                translation.appendChild(catIcon2);
+                
+                // Show share button
+                shareSection.classList.add('visible');
+                
+                // Add to history and update stats
+                addToHistory(input, catTranslation);
+                updateTranslationStats(catTranslation);
+            });
+            
+            speakBtn.addEventListener('click', function() {
+                const translationText = translation.querySelector('.translation-text');
+                if (translationText && 'speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(translationText.textContent);
+                    utterance.rate = 0.8;
+                    utterance.pitch = 1.2;
+                    speechSynthesis.speak(utterance);
+                }
+            });
+            
+            clearBtn.addEventListener('click', function() {
+                inputText.value = '';
+                translation.innerHTML = '<span>Your translation will appear here</span>';
+                shareSection.classList.remove('visible');
+            });
+            
+            shareBtn.addEventListener('click', function() {
+                const humanText = inputText.value;
+                const catText = translation.querySelector('.translation-text').textContent;
+                
+                const shareText = `Human: ${humanText}\nCat: ${catText}\n\nTranslated with Purrfect Translator!`;
+                
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'My Cat Translation',
+                        text: shareText,
+                        url: window.location.href
+                    });
+                } else {
+                    // Fallback: copy to clipboard
+                    navigator.clipboard.writeText(shareText).then(() => {
+                        alert('Translation copied to clipboard!');
+                    });
+                }
+            });
+            
+            // Add some fun animation to buttons on hover
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.addEventListener('mouseover', function() {
+                    this.style.transform = 'scale(1.05)';
+                });
+                
+                button.addEventListener('mouseout', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+            
+            // Add meow sound on page load
+            window.addEventListener('load', function() {
+                // Just for fun - increment meow count on load
+                stats.meows++;
+                updateStats();
+            });
+        });
+    </script>
+</body>
+</html>
