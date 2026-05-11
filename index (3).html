@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Experience Survey</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(to right, #2c3e50, #4a6491);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        #description {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        #survey-form {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .form-group:hover {
+            transform: translateY(-3px);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+
+        .optional {
+            font-weight: normal;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        input[type="radio"], input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .radio-group, .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .radio-group label, .checkbox-group label {
+            font-weight: normal;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px 0;
+            transition: color 0.3s;
+        }
+
+        .radio-group label:hover, .checkbox-group label:hover {
+            color: #3498db;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(to right, #3498db, #2c3e50);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(to right, #2980b9, #34495e);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        .form-title {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .container {
+                border-radius: 10px;
+            }
+            
+            header {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            #survey-form {
+                padding: 20px;
+            }
+            
+            .form-group {
+                padding: 15px;
+            }
+        }
+
+        /* Animation for form elements */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+        .form-group:nth-child(4) { animation-delay: 0.4s; }
+        .form-group:nth-child(5) { animation-delay: 0.5s; }
+        .form-group:nth-child(6) { animation-delay: 0.6s; }
+        .form-group:nth-child(7) { animation-delay: 0.7s; }
+        .form-group:nth-child(8) { animation-delay: 0.8s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 id="title">Customer Experience Survey</h1>
+            <p id="description">
+                We value your feedback! Please take a few minutes to share your experience with us. 
+                Your responses will help us improve our products and services.
+            </p>
+        </header>
+        
+        <form id="survey-form">
+            <!-- Personal Information Section -->
+            <div class="form-group">
+                <div class="form-title">Personal Information</div>
+                
+                <label id="name-label" for="name">Full Name</label>
+                <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+                
+                <label id="email-label" for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+                
+                <label id="number-label" for="number">Age <span class="optional">(optional)</span></label>
+                <input type="number" id="number" name="age" min="13" max="120" placeholder="Enter your age">
+            </div>
+            
+            <!-- Role Selection -->
+            <div class="form-group">
+                <label for="dropdown">Which option best describes your current role?</label>
+                <select id="dropdown" name="role" required>
+                    <option value="" disabled selected>Select your role</option>
+                    <option value="student">Student</option>
+                    <option value="full-time-job">Full Time Employee</option>
+                    <option value="part-time-job">Part Time Employee</option>
+                    <option value="freelancer">Freelancer</option>
+                    <option value="business-owner">Business Owner</option>
+                    <option value="prefer-not-to-say">Prefer not to say</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <!-- Recommendation -->
+            <div class="form-group">
+                <p class="form-title">How likely are you to recommend us to others?</p>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="recommend" value="definitely" checked>
+                        Definitely
+                    </label>
+                    <label>
+                        <input type="radio" name="recommend" value="probably">
+                        Probably
+                    </label>
+                    <label>
+                        <input type="radio" name="recommend" value="maybe">
+                        Maybe
+                    </label>
+                    <label>
+                        <input type="radio" name="recommend" value="not-sure">
+                        Not sure
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Features -->
+            <div class="form-group">
+                <p class="form-title">What aspects of our service would you like to see improved? <span class="optional">(Check all that apply)</span></p>
+                <div class="checkbox-group">
+                    <label>
+                        <input type="checkbox" name="improvements" value="website">
+                        Website Design
+                    </label>
+                    <label>
+                        <input type="checkbox" name="improvements" value="customer-service">
+                        Customer Service
+                    </label>
+                    <label>
+                        <input type="checkbox" name="improvements" value="product-quality">
+                        Product Quality
+                    </label>
+                    <label>
+                        <input type="checkbox" name="improvements" value="pricing">
+                        Pricing
+                    </label>
+                    <label>
+                        <input type="checkbox" name="improvements" value="delivery">
+                        Delivery Speed
+                    </label>
+                    <label>
+                        <input type="checkbox" name="improvements" value="communication">
+                        Communication
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Additional Features -->
+            <div class="form-group">
+                <p class="form-title">Which additional features would you like to see? <span class="optional">(Check all that apply)</span></p>
+                <div class="checkbox-group">
+                    <label>
+                        <input type="checkbox" name="features" value="mobile-app">
+                        Mobile App
+                    </label>
+                    <label>
+                        <input type="checkbox" name="features" value="loyalty-program">
+                        Loyalty Program
+                    </label>
+                    <label>
+                        <input type="checkbox" name="features" value="live-chat">
+                        24/7 Live Chat Support
+                    </label>
+                    <label>
+                        <input type="checkbox" name="features" value="video-tutorials">
+                        Video Tutorials
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Satisfaction -->
+            <div class="form-group">
+                <p class="form-title">How satisfied are you with our overall service?</p>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="satisfaction" value="very-satisfied">
+                        Very Satisfied
+                    </label>
+                    <label>
+                        <input type="radio" name="satisfaction" value="satisfied">
+                        Satisfied
+                    </label>
+                    <label>
+                        <input type="radio" name="satisfaction" value="neutral">
+                        Neutral
+                    </label>
+                    <label>
+                        <input type="radio" name="satisfaction" value="unsatisfied">
+                        Unsatisfied
+                    </label>
+                    <label>
+                        <input type="radio" name="satisfaction" value="very-unsatisfied">
+                        Very Unsatisfied
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Comments -->
+            <div class="form-group">
+                <label for="comments">Any additional comments or suggestions?</label>
+                <textarea id="comments" name="comments" placeholder="Please share any additional feedback or suggestions you might have..."></textarea>
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="form-group">
+                <button type="submit" id="submit">Submit Your Feedback</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Form validation and submission handling
+        document.getElementById('survey-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = new FormData(this);
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                if (data[key]) {
+                    if (Array.isArray(data[key])) {
+                        data[key].push(value);
+                    } else {
+                        data[key] = [data[key], value];
+                    }
+                } else {
+                    data[key] = value;
+                }
+            }
+            
+            // In a real application, you would send this data to a server
+            console.log('Form data:', data);
+            
+            // Show success message
+            alert('Thank you for your feedback! Your responses have been recorded.');
+            this.reset();
+        });
+    </script>
+</body>
+</html>
