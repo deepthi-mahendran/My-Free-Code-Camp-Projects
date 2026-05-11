@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Pomodoro Timer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #ff6b6b;
+            --primary-dark: #ee5a52;
+            --secondary: #4ecdc4;
+            --secondary-dark: #45b8b0;
+            --accent: #ffd166;
+            --dark: #1a1a2e;
+            --darker: #0f0f1a;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --session-color: #4ecdc4;
+            --break-color: #ff6b6b;
+            --card-bg: rgba(45, 45, 68, 0.8);
+            --card-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: var(--light);
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 3.2rem;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--gray);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 968px) {
+            .app-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        .control-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .length-control {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+            text-align: center;
+        }
+
+        .control-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .control-icon {
+            font-size: 1.5rem;
+        }
+
+        #break-label .control-icon {
+            color: var(--break-color);
+        }
+
+        #session-label .control-icon {
+            color: var(--session-color);
+        }
+
+        .control-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .control-display {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin: 15px 0;
+            color: var(--light);
+        }
+
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--light);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        #break-decrement, #break-increment {
+            border: 2px solid var(--break-color);
+        }
+
+        #session-decrement, #session-increment {
+            border: 2px solid var(--session-color);
+        }
+
+        .timer-container {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timer-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 107, 107, 0.1) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        #timer-label {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gray);
+        }
+
+        .timer-session #timer-label {
+            color: var(--session-color);
+        }
+
+        .timer-break #timer-label {
+            color: var(--break-color);
+        }
+
+        #time-left {
+            font-size: 5rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            margin: 20px 0;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .timer-session #time-left {
+            color: var(--session-color);
+        }
+
+        .timer-break #time-left {
+            color: var(--break-color);
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .timer-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            color: var(--light);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timer-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .timer-btn:active {
+            transform: translateY(0);
+        }
+
+        #start_stop {
+            background: var(--secondary);
+        }
+
+        #start_stop:hover {
+            background: var(--secondary-dark);
+        }
+
+        #reset {
+            background: var(--primary);
+        }
+
+        #reset:hover {
+            background: var(--primary-dark);
+        }
+
+        .progress-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .timer-session .progress-ring-circle {
+            stroke: var(--session-color);
+        }
+
+        .timer-break .progress-ring-circle {
+            stroke: var(--break-color);
+        }
+
+        /* Analytics Section */
+        .analytics-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 968px) {
+            .analytics-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stats-card, .history-card, .chart-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+        }
+
+        .chart-card {
+            grid-column: 1 / -1;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 15px;
+        }
+
+        .card-icon {
+            font-size: 1.5rem;
+            color: var(--secondary);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .session-focus .stat-value {
+            color: var(--session-color);
+        }
+
+        .break-time .stat-value {
+            color: var(--break-color);
+        }
+
+        .total-sessions .stat-value {
+            color: var(--accent);
+        }
+
+        .productivity .stat-value {
+            color: var(--secondary);
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border-left: 4px solid var(--session-color);
+        }
+
+        .history-item.break {
+            border-left-color: var(--break-color);
+        }
+
+        .history-type {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-duration {
+            color: var(--gray);
+        }
+
+        .history-time {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--light);
+        }
+
+        .feature-desc {
+            color: var(--gray);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Animation for timer */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .timer-low {
+            animation: pulse 1s infinite;
+            color: var(--primary) !important;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .control-display {
+                font-size: 2.8rem;
+            }
+            
+            #time-left {
+                font-size: 4rem;
+            }
+            
+            .timer-container {
+                padding: 25px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .control-display {
+                font-size: 2.2rem;
+            }
+            
+            #time-left {
+                font-size: 3rem;
+            }
+            
+            .timer-btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Visual feedback for controls */
+        .control-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .control-btn:disabled:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Productivity Pomodoro Timer</h1>
+            <p class="subtitle">Track your focus sessions, breaks, and productivity with advanced analytics and visualizations.</p>
+        </header>
+
+        <div class="app-container">
+            <div class="control-panel">
+                <div class="length-control">
+                    <div class="control-header" id="break-label">
+                        <i class="fas fa-coffee control-icon"></i>
+                        <h2 class="control-title">Break Length</h2>
+                    </div>
+                    <div class="control-display" id="break-length">5</div>
+                    <div class="control-buttons">
+                        <button class="control-btn" id="break-decrement">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button class="control-btn" id="break-increment">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="length-control">
+                    <div class="control-header" id="session-label">
+                        <i class="fas fa-laptop-code control-icon"></i>
+                        <h2 class="control-title">Session Length</h2>
+                    </div>
+                    <div class="control-display" id="session-length">25</div>
+                    <div class="control-buttons">
+                        <button class="control-btn" id="session-decrement">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button class="control-btn" id="session-increment">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timer-container timer-session" id="timer">
+                <svg class="progress-ring" width="300" height="300">
+                    <circle class="progress-ring-circle" stroke-width="4" fill="transparent" r="140" cx="150" cy="150"/>
+                </svg>
+                
+                <div id="timer-label">Session</div>
+                <div id="time-left">25:00</div>
+                
+                <div class="timer-controls">
+                    <button class="timer-btn" id="start_stop">
+                        <i class="fas fa-play"></i>
+                        <span>Start</span>
+                    </button>
+                    <button class="timer-btn" id="reset">
+                        <i class="fas fa-redo"></i>
+                        <span>Reset Timer</span>
+                    </button>
+                    <button class="timer-btn" id="reset-stats">
+                        <i class="fas fa-trash"></i>
+                        <span>Reset Stats</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="analytics-section">
+            <div class="stats-card">
+                <div class="card-header">
+                    <i class="fas fa-chart-bar card-icon"></i>
+                    <h3 class="card-title">Today's Stats</h3>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item session-focus">
+                        <div class="stat-value" id="focus-time">0m</div>
+                        <div class="stat-label">Focus Time</div>
+                    </div>
+                    <div class="stat-item break-time">
+                        <div class="stat-value" id="break-time">0m</div>
+                        <div class="stat-label">Break Time</div>
+                    </div>
+                    <div class="stat-item total-sessions">
+                        <div class="stat-value" id="total-sessions">0</div>
+                        <div class="stat-label">Sessions Completed</div>
+                    </div>
+                    <div class="stat-item productivity">
+                        <div class="stat-value" id="productivity-score">0%</div>
+                        <div class="stat-label">Productivity</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="history-card">
+                <div class="card-header">
+                    <i class="fas fa-history card-icon"></i>
+                    <h3 class="card-title">Session History</h3>
+                </div>
+                <div class="history-list" id="history-list">
+                    <!-- History items will be added here -->
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="card-header">
+                    <i class="fas fa-chart-pie card-icon"></i>
+                    <h3 class="card-title">Time Distribution</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="timeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h3 class="feature-title">Focus Enhancement</h3>
+                <p class="feature-desc">25-minute sessions help maintain high concentration levels and prevent burnout.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="feature-title">Productivity Analytics</h3>
+                <p class="feature-desc">Track your progress with detailed statistics and visual time distribution charts.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h3 class="feature-title">Session History</h3>
+                <p class="feature-desc">Review your past sessions to understand your productivity patterns and improve.</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>Built with ❤️ for FreeCodeCamp | Enhanced 25 + 5 Clock Project</p>
+        </footer>
+    </div>
+
+    <!-- Audio element for the beep sound -->
+    <audio id="beep" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Timer state
+        const timer = {
+            breakLength: 5,
+            sessionLength: 25,
+            timeLeft: 25 * 60, // in seconds
+            timerLabel: 'Session',
+            isRunning: false,
+            timerInterval: null,
+            isSession: true
+        };
+
+        // Analytics state - Load from localStorage or initialize
+        const analytics = JSON.parse(localStorage.getItem('pomodoroAnalytics')) || {
+            totalFocusTime: 0, // in minutes
+            totalBreakTime: 0, // in minutes
+            sessionsCompleted: 0,
+            sessionHistory: [],
+            lastResetDate: new Date().toDateString()
+        };
+
+        // Check if we need to reset analytics for a new day
+        function checkDailyReset() {
+            const today = new Date().toDateString();
+            if (analytics.lastResetDate !== today) {
+                // New day, reset analytics
+                analytics.totalFocusTime = 0;
+                analytics.totalBreakTime = 0;
+                analytics.sessionsCompleted = 0;
+                analytics.sessionHistory = [];
+                analytics.lastResetDate = today;
+                saveAnalytics();
+                updateAnalyticsDisplay();
+            }
+        }
+
+        // Save analytics to localStorage
+        function saveAnalytics() {
+            localStorage.setItem('pomodoroAnalytics', JSON.stringify(analytics));
+        }
+
+        // DOM Elements
+        const breakLengthElement = document.getElementById('break-length');
+        const sessionLengthElement = document.getElementById('session-length');
+        const timerLabelElement = document.getElementById('timer-label');
+        const timeLeftElement = document.getElementById('time-left');
+        const startStopButton = document.getElementById('start_stop');
+        const resetButton = document.getElementById('reset');
+        const resetStatsButton = document.getElementById('reset-stats');
+        const breakDecrementButton = document.getElementById('break-decrement');
+        const breakIncrementButton = document.getElementById('break-increment');
+        const sessionDecrementButton = document.getElementById('session-decrement');
+        const sessionIncrementButton = document.getElementById('session-increment');
+        const timerContainer = document.getElementById('timer');
+        const beepSound = document.getElementById('beep');
+        const progressCircle = document.querySelector('.progress-ring-circle');
+
+        // Analytics DOM Elements
+        const focusTimeElement = document.getElementById('focus-time');
+        const breakTimeElement = document.getElementById('break-time');
+        const totalSessionsElement = document.getElementById('total-sessions');
+        const productivityScoreElement = document.getElementById('productivity-score');
+        const historyListElement = document.getElementById('history-list');
+
+        // Chart variables
+        let timeChart = null;
+
+        // Initialize progress ring
+        const radius = progressCircle.r.baseVal.value;
+        const circumference = radius * 2 * Math.PI;
+        progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
+        progressCircle.style.strokeDashoffset = circumference;
+
+        // Update progress ring
+        function updateProgressRing() {
+            const totalTime = timer.isSession ? timer.sessionLength * 60 : timer.breakLength * 60;
+            const offset = circumference - (timer.timeLeft / totalTime) * circumference;
+            progressCircle.style.strokeDashoffset = offset;
+        }
+
+        // Format time as mm:ss
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Format minutes for display
+        function formatMinutes(minutes) {
+            if (minutes < 60) {
+                return `${minutes}m`;
+            } else {
+                const hours = Math.floor(minutes / 60);
+                const mins = minutes % 60;
+                return `${hours}h ${mins}m`;
+            }
+        }
+
+        // Update display
+        function updateDisplay() {
+            breakLengthElement.textContent = timer.breakLength;
+            sessionLengthElement.textContent = timer.sessionLength;
+            timerLabelElement.textContent = timer.timerLabel;
+            timeLeftElement.textContent = formatTime(timer.timeLeft);
+            
+            // Update progress ring
+            updateProgressRing();
+            
+            // Update timer container class for styling
+            if (timer.isSession) {
+                timerContainer.classList.remove('timer-break');
+                timerContainer.classList.add('timer-session');
+            } else {
+                timerContainer.classList.remove('timer-session');
+                timerContainer.classList.add('timer-break');
+            }
+            
+            // Add warning class when time is low
+            if (timer.timeLeft <= 60 && timer.timeLeft > 0) {
+                timeLeftElement.classList.add('timer-low');
+            } else {
+                timeLeftElement.classList.remove('timer-low');
+            }
+        }
+
+        // Update analytics display
+        function updateAnalyticsDisplay() {
+            focusTimeElement.textContent = formatMinutes(analytics.totalFocusTime);
+            breakTimeElement.textContent = formatMinutes(analytics.totalBreakTime);
+            totalSessionsElement.textContent = analytics.sessionsCompleted;
+            
+            // Calculate productivity score (focus time / total time)
+            const totalTime = analytics.totalFocusTime + analytics.totalBreakTime;
+            const productivity = totalTime > 0 ? Math.round((analytics.totalFocusTime / totalTime) * 100) : 0;
+            productivityScoreElement.textContent = `${productivity}%`;
+            
+            updateChart();
+        }
+
+        // Update session history
+        function updateSessionHistory() {
+            historyListElement.innerHTML = '';
+            
+            // Show only last 10 sessions
+            const recentSessions = analytics.sessionHistory.slice(-10).reverse();
+            
+            if (recentSessions.length === 0) {
+                historyListElement.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px;">No sessions yet</div>';
+                return;
+            }
+            
+            recentSessions.forEach(session => {
+                const historyItem = document.createElement('div');
+                historyItem.className = `history-item ${session.type === 'break' ? 'break' : ''}`;
+                
+                const typeIcon = session.type === 'session' ? 'fas fa-laptop-code' : 'fas fa-coffee';
+                const typeText = session.type === 'session' ? 'Focus Session' : 'Break';
+                
+                historyItem.innerHTML = `
+                    <div class="history-type">
+                        <i class="${typeIcon}"></i>
+                        <span>${typeText}</span>
+                    </div>
+                    <div class="history-duration">${session.duration}m</div>
+                    <div class="history-time">${session.time}</div>
+                `;
+                
+                historyListElement.appendChild(historyItem);
+            });
+        }
+
+        // Initialize chart
+        function initializeChart() {
+            const ctx = document.getElementById('timeChart').getContext('2d');
+            timeChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Focus Time', 'Break Time'],
+                    datasets: [{
+                        data: [analytics.totalFocusTime, analytics.totalBreakTime],
+                        backgroundColor: [
+                            'rgba(78, 205, 196, 0.8)',
+                            'rgba(255, 107, 107, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(78, 205, 196, 1)',
+                            'rgba(255, 107, 107, 1)'
+                        ],
+                        borderWidth: 2,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#f8f9fa',
+                                font: {
+                                    size: 14
+                                },
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                    return `${label}: ${value}m (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update chart
+        function updateChart() {
+            if (timeChart) {
+                timeChart.data.datasets[0].data = [analytics.totalFocusTime, analytics.totalBreakTime];
+                timeChart.update();
+            }
+        }
+
+        // Add session to history
+        function addSessionToHistory(type, duration) {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            analytics.sessionHistory.push({
+                type: type,
+                duration: duration,
+                time: timeString,
+                timestamp: now.getTime()
+            });
+            
+            // Save to localStorage
+            saveAnalytics();
+            
+            updateSessionHistory();
+        }
+
+        // Update button states
+        function updateButtonStates() {
+            breakDecrementButton.disabled = timer.breakLength <= 1;
+            breakIncrementButton.disabled = timer.breakLength >= 60;
+            sessionDecrementButton.disabled = timer.sessionLength <= 1;
+            sessionIncrementButton.disabled = timer.sessionLength >= 60;
+        }
+
+        // Start timer
+        function startTimer() {
+            if (!timer.isRunning) {
+                timer.isRunning = true;
+                startStopButton.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+                
+                timer.timerInterval = setInterval(() => {
+                    if (timer.timeLeft > 0) {
+                        timer.timeLeft--;
+                        updateDisplay();
+                    } else {
+                        // Timer reached zero
+                        beepSound.play();
+                        
+                        // Record completed session
+                        const sessionDuration = timer.isSession ? timer.sessionLength : timer.breakLength;
+                        addSessionToHistory(timer.isSession ? 'session' : 'break', sessionDuration);
+                        
+                        // Update analytics
+                        if (timer.isSession) {
+                            analytics.totalFocusTime += timer.sessionLength;
+                            analytics.sessionsCompleted++;
+                        } else {
+                            analytics.totalBreakTime += timer.breakLength;
+                        }
+                        
+                        // Save analytics
+                        saveAnalytics();
+                        updateAnalyticsDisplay();
+                        
+                        // Switch between session and break
+                        if (timer.isSession) {
+                            timer.isSession = false;
+                            timer.timerLabel = 'Break';
+                            timer.timeLeft = timer.breakLength * 60;
+                        } else {
+                            timer.isSession = true;
+                            timer.timerLabel = 'Session';
+                            timer.timeLeft = timer.sessionLength * 60;
+                        }
+                        
+                        updateDisplay();
+                    }
+                }, 1000);
+            }
+        }
+
+        // Pause timer
+        function pauseTimer() {
+            if (timer.isRunning) {
+                timer.isRunning = false;
+                clearInterval(timer.timerInterval);
+                startStopButton.innerHTML = '<i class="fas fa-play"></i><span>Start</span>';
+            }
+        }
+
+        // Reset timer only (not analytics)
+        function resetTimer() {
+            pauseTimer();
+            
+            // Stop and reset beep sound
+            beepSound.pause();
+            beepSound.currentTime = 0;
+            
+            // Reset timer state only
+            timer.breakLength = 5;
+            timer.sessionLength = 25;
+            timer.timeLeft = 25 * 60;
+            timer.timerLabel = 'Session';
+            timer.isSession = true;
+            
+            updateDisplay();
+            updateButtonStates();
+        }
+
+        // Reset analytics completely
+        function resetAnalytics() {
+            if (confirm('Are you sure you want to reset all statistics? This cannot be undone.')) {
+                analytics.totalFocusTime = 0;
+                analytics.totalBreakTime = 0;
+                analytics.sessionsCompleted = 0;
+                analytics.sessionHistory = [];
+                analytics.lastResetDate = new Date().toDateString();
+                
+                saveAnalytics();
+                updateAnalyticsDisplay();
+                updateSessionHistory();
+            }
+        }
+
+        // Adjust break length
+        function adjustBreakLength(change) {
+            const newLength = timer.breakLength + change;
+            if (newLength >= 1 && newLength <= 60) {
+                timer.breakLength = newLength;
+                
+                // If we're in a break, update the time left
+                if (!timer.isSession && !timer.isRunning) {
+                    timer.timeLeft = timer.breakLength * 60;
+                }
+                
+                updateDisplay();
+                updateButtonStates();
+            }
+        }
+
+        // Adjust session length
+        function adjustSessionLength(change) {
+            const newLength = timer.sessionLength + change;
+            if (newLength >= 1 && newLength <= 60) {
+                timer.sessionLength = newLength;
+                
+                // If we're in a session and not running, update the time left
+                if (timer.isSession && !timer.isRunning) {
+                    timer.timeLeft = timer.sessionLength * 60;
+                }
+                
+                updateDisplay();
+                updateButtonStates();
+            }
+        }
+
+        // Event Listeners
+        startStopButton.addEventListener('click', () => {
+            if (timer.isRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        });
+
+        resetButton.addEventListener('click', resetTimer);
+        resetStatsButton.addEventListener('click', resetAnalytics);
+
+        breakDecrementButton.addEventListener('click', () => adjustBreakLength(-1));
+        breakIncrementButton.addEventListener('click', () => adjustBreakLength(1));
+
+        sessionDecrementButton.addEventListener('click', () => adjustSessionLength(-1));
+        sessionIncrementButton.addEventListener('click', () => adjustSessionLength(1));
+
+        // Keyboard support
+        document.addEventListener('keydown', (event) => {
+            switch(event.key) {
+                case ' ':
+                case 'Enter':
+                    event.preventDefault();
+                    if (timer.isRunning) {
+                        pauseTimer();
+                    } else {
+                        startTimer();
+                    }
+                    break;
+                case 'r':
+                case 'R':
+                    event.preventDefault();
+                    if (event.ctrlKey) {
+                        resetAnalytics();
+                    } else {
+                        resetTimer();
+                    }
+                    break;
+                case 'ArrowLeft':
+                    event.preventDefault();
+                    if (timer.isSession) {
+                        adjustSessionLength(-1);
+                    } else {
+                        adjustBreakLength(-1);
+                    }
+                    break;
+                case 'ArrowRight':
+                    event.preventDefault();
+                    if (timer.isSession) {
+                        adjustSessionLength(1);
+                    } else {
+                        adjustBreakLength(1);
+                    }
+                    break;
+            }
+        });
+
+        // Initialize the timer and analytics
+        checkDailyReset(); // Check if we need to reset for new day
+        updateDisplay();
+        updateButtonStates();
+        updateAnalyticsDisplay();
+        updateSessionHistory();
+        
+        // Initialize chart after a short delay to ensure DOM is ready
+        setTimeout(initializeChart, 100);
+    </script>
+</body>
+</html>
