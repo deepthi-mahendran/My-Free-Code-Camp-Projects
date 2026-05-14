@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deepthi's Karate Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1a237e;
+            --secondary: #ffc107;
+            --accent: #d32f2f;
+            --light: #f5f5f5;
+            --dark: #2c3e50;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 15px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .user-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        @media (min-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card h2 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .technique-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .technique-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .technique-item:last-child {
+            border-bottom: none;
+        }
+        
+        .technique-name {
+            font-weight: 600;
+        }
+        
+        .counter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .counter button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .counter span {
+            margin: 0 8px;
+            min-width: 30px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .add-technique {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .add-technique input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            flex: 1;
+        }
+        
+        .add-technique button {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-card {
+            background: var(--primary);
+            color: white;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .tournament-card {
+            background: var(--primary);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .countdown-item {
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            border-radius: 8px;
+            min-width: 70px;
+        }
+        
+        .countdown-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .profile-card {
+            text-align: center;
+        }
+        
+        .profile-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .profile-stat {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .profile-stat-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .rank-progress {
+            margin-top: 15px;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background: #eee;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        
+        .progress {
+            height: 100%;
+            background: var(--secondary);
+            width: 65%;
+        }
+        
+        .session-controls {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .session-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .start-btn {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .pause-btn {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .stop-btn {
+            background: #f44336;
+            color: white;
+        }
+        
+        .timer-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #666;
+        }
+        
+        .motivation {
+            font-style: italic;
+            text-align: center;
+            margin: 15px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-fist-raised"></i> Deepthi's Karate Tracker</h1>
+            <p>International Shitoku-Kai Karate - Sri Lanka | OSU!</p>
+            <div class="user-info">
+                <div class="user-avatar">D</div>
+                <div>
+                    <div>Deepthi | Blue Belt</div>
+                    <div>Next: Yellow Belt</div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="dashboard">
+            <div class="card">
+                <h2><i class="fas fa-shoe-prints"></i> Kicks</h2>
+                <div class="technique-list" id="kicks-list">
+                    <!-- Kicks populated by JS -->
+                </div>
+                <div class="add-technique">
+                    <input type="text" id="new-kick" placeholder="Add new kick">
+                    <button id="add-kick-btn">Add</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-hand-rock"></i> Punches</h2>
+                <div class="technique-list" id="punches-list">
+                    <!-- Punches populated by JS -->
+                </div>
+                <div class="add-technique">
+                    <input type="text" id="new-punch" placeholder="Add new punch">
+                    <button id="add-punch-btn">Add</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-shield-alt"></i> Blocks</h2>
+                <div class="technique-list" id="blocks-list">
+                    <!-- Blocks populated by JS -->
+                </div>
+                <div class="add-technique">
+                    <input type="text" id="new-block" placeholder="Add new block">
+                    <button id="add-block-btn">Add</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-chart-line"></i> Training Stats</h2>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-kicks">0</div>
+                        <div>Total Kicks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-punches">0</div>
+                        <div>Total Punches</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-blocks">0</div>
+                        <div>Total Blocks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-techniques">0</div>
+                        <div>All Techniques</div>
+                    </div>
+                </div>
+                
+                <div class="session-controls">
+                    <button class="session-btn start-btn" id="start-session">
+                        <i class="fas fa-play"></i> Start
+                    </button>
+                    <button class="session-btn pause-btn" id="pause-session" disabled>
+                        <i class="fas fa-pause"></i> Pause
+                    </button>
+                    <button class="session-btn stop-btn" id="stop-session" disabled>
+                        <i class="fas fa-stop"></i> Stop
+                    </button>
+                </div>
+                
+                <div class="timer-display" id="timer">00:00:00</div>
+            </div>
+        </div>
+        
+        <div class="tournament-card">
+            <h2><i class="fas fa-trophy"></i> Tournament Countdown</h2>
+            <p>November 29, 2025 - Prepare Well!</p>
+            <div class="countdown" id="countdown">
+                <div class="countdown-item">
+                    <div class="countdown-value" id="days">00</div>
+                    <div>Days</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-value" id="hours">00</div>
+                    <div>Hours</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-value" id="minutes">00</div>
+                    <div>Minutes</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-value" id="seconds">00</div>
+                    <div>Seconds</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card profile-card">
+            <h2><i class="fas fa-user"></i> Deepthi's Profile</h2>
+            <div class="profile-stats">
+                <div class="profile-stat">
+                    <div class="profile-stat-value">5'2"</div>
+                    <div>Height</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-value">40kg</div>
+                    <div>Weight</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-value">Blue</div>
+                    <div>Current Belt</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-value">Yellow</div>
+                    <div>Next Belt</div>
+                </div>
+            </div>
+            
+            <div class="rank-progress">
+                <div>Progress to Yellow Belt: 65%</div>
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+            </div>
+            
+            <div class="motivation">
+                "The ultimate aim of karate lies not in victory or defeat, but in the perfection of the character of its participants." - Gichin Funakoshi
+            </div>
+        </div>
+        
+        <footer>
+            <p>International Shitoku-Kai Karate - Sri Lanka &copy; 2022 | OSU!</p>
+        </footer>
+    </div>
+
+    <script>
+        // Default techniques
+        const defaultTechniques = {
+            kicks: [
+                { name: "Mae Geri", english: "Front Kick" },
+                { name: "Mawashi Geri", english: "Roundhouse Kick" },
+                { name: "Yoko Geri", english: "Side Kick" }
+            ],
+            punches: [
+                { name: "Oi Zuki", english: "Lunge Punch" },
+                { name: "Gyaku Zuki", english: "Reverse Punch" },
+                { name: "Kizami Zuki", english: "Jab" }
+            ],
+            blocks: [
+                { name: "Age Uke", english: "Rising Block" },
+                { name: "Soto Uke", english: "Outside Block" },
+                { name: "Gedan Barai", english: "Downward Block" }
+            ]
+        };
+
+        // Load from localStorage or use defaults
+        let techniques = JSON.parse(localStorage.getItem('karateTechniques')) || defaultTechniques;
+        let counters = JSON.parse(localStorage.getItem('karateCounters')) || {
+            kicks: {},
+            punches: {},
+            blocks: {}
+        };
+        
+        let sessionActive = false;
+        let sessionTimer = null;
+        let sessionSeconds = 0;
+
+        // Initialize counters
+        function initializeCounters() {
+            ['kicks', 'punches', 'blocks'].forEach(type => {
+                techniques[type].forEach(technique => {
+                    const key = `${technique.name}|${technique.english}`;
+                    if (!counters[type][key]) {
+                        counters[type][key] = 0;
+                    }
+                });
+            });
+            saveCounters();
+        }
+
+        // Save to localStorage
+        function saveCounters() {
+            localStorage.setItem('karateCounters', JSON.stringify(counters));
+        }
+
+        function saveTechniques() {
+            localStorage.setItem('karateTechniques', JSON.stringify(techniques));
+        }
+
+        // Render techniques
+        function renderTechniques() {
+            ['kicks', 'punches', 'blocks'].forEach(type => {
+                const listElement = document.getElementById(`${type}-list`);
+                listElement.innerHTML = '';
+                
+                techniques[type].forEach(technique => {
+                    const key = `${technique.name}|${technique.english}`;
+                    const count = counters[type][key] || 0;
+                    
+                    const item = document.createElement('div');
+                    item.className = 'technique-item';
+                    
+                    const nameDiv = document.createElement('div');
+                    nameDiv.innerHTML = `
+                        <div class="technique-name">${technique.english}</div>
+                        <div style="font-size:0.8rem; color:#666">${technique.name}</div>
+                    `;
+                    
+                    const counterDiv = document.createElement('div');
+                    counterDiv.className = 'counter';
+                    
+                    const minusBtn = document.createElement('button');
+                    minusBtn.innerHTML = '<i class="fas fa-minus"></i>';
+                    minusBtn.onclick = () => updateCounter(type, key, -1);
+                    if (count <= 0) minusBtn.disabled = true;
+                    
+                    const countSpan = document.createElement('span');
+                    countSpan.textContent = count;
+                    
+                    const plusBtn = document.createElement('button');
+                    plusBtn.innerHTML = '<i class="fas fa-plus"></i>';
+                    plusBtn.onclick = () => updateCounter(type, key, 1);
+                    
+                    counterDiv.appendChild(minusBtn);
+                    counterDiv.appendChild(countSpan);
+                    counterDiv.appendChild(plusBtn);
+                    
+                    item.appendChild(nameDiv);
+                    item.appendChild(counterDiv);
+                    
+                    listElement.appendChild(item);
+                });
+            });
+            
+            updateStats();
+        }
+
+        // Update counter
+        function updateCounter(type, key, change) {
+            counters[type][key] += change;
+            if (counters[type][key] < 0) counters[type][key] = 0;
+            saveCounters();
+            renderTechniques();
+        }
+
+        // Update statistics
+        function updateStats() {
+            let totalKicks = 0;
+            let totalPunches = 0;
+            let totalBlocks = 0;
+            
+            techniques.kicks.forEach(technique => {
+                const key = `${technique.name}|${technique.english}`;
+                totalKicks += counters.kicks[key];
+            });
+            
+            techniques.punches.forEach(technique => {
+                const key = `${technique.name}|${technique.english}`;
+                totalPunches += counters.punches[key];
+            });
+            
+            techniques.blocks.forEach(technique => {
+                const key = `${technique.name}|${technique.english}`;
+                totalBlocks += counters.blocks[key];
+            });
+            
+            document.getElementById('total-kicks').textContent = totalKicks;
+            document.getElementById('total-punches').textContent = totalPunches;
+            document.getElementById('total-blocks').textContent = totalBlocks;
+            document.getElementById('total-techniques').textContent = totalKicks + totalPunches + totalBlocks;
+        }
+
+        // Add technique
+        function addTechnique(type, inputId) {
+            const input = document.getElementById(inputId);
+            const name = input.value.trim();
+            
+            if (name) {
+                techniques[type].push({
+                    name: name,
+                    english: name
+                });
+                
+                const key = `${name}|${name}`;
+                counters[type][key] = 0;
+                
+                saveTechniques();
+                saveCounters();
+                renderTechniques();
+                input.value = '';
+            }
+        }
+
+        // Tournament countdown
+        function updateCountdown() {
+            const tournamentDate = new Date('November 29, 2025 00:00:00').getTime();
+            const now = new Date().getTime();
+            const distance = tournamentDate - now;
+            
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+            document.getElementById('days').textContent = days.toString().padStart(2, '0');
+            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+        }
+
+        // Session timer functions
+        function startSession() {
+            sessionActive = true;
+            sessionSeconds = 0;
+            
+            document.getElementById('start-session').disabled = true;
+            document.getElementById('pause-session').disabled = false;
+            document.getElementById('stop-session').disabled = false;
+            
+            sessionTimer = setInterval(() => {
+                sessionSeconds++;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function pauseSession() {
+            if (sessionActive) {
+                clearInterval(sessionTimer);
+                document.getElementById('pause-session').innerHTML = '<i class="fas fa-play"></i> Resume';
+                sessionActive = false;
+            } else {
+                sessionTimer = setInterval(() => {
+                    sessionSeconds++;
+                    updateTimerDisplay();
+                }, 1000);
+                document.getElementById('pause-session').innerHTML = '<i class="fas fa-pause"></i> Pause';
+                sessionActive = true;
+            }
+        }
+
+        function stopSession() {
+            clearInterval(sessionTimer);
+            sessionActive = false;
+            
+            document.getElementById('start-session').disabled = false;
+            document.getElementById('pause-session').disabled = true;
+            document.getElementById('stop-session').disabled = true;
+            document.getElementById('pause-session').innerHTML = '<i class="fas fa-pause"></i> Pause';
+            
+            sessionSeconds = 0;
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const hours = Math.floor(sessionSeconds / 3600);
+            const minutes = Math.floor((sessionSeconds % 3600) / 60);
+            const seconds = sessionSeconds % 60;
+            
+            document.getElementById('timer').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Initialize app
+        function init() {
+            initializeCounters();
+            renderTechniques();
+            updateCountdown();
+            
+            // Update countdown every second
+            setInterval(updateCountdown, 1000);
+            
+            // Event listeners
+            document.getElementById('add-kick-btn').addEventListener('click', () => addTechnique('kicks', 'new-kick'));
+            document.getElementById('add-punch-btn').addEventListener('click', () => addTechnique('punches', 'new-punch'));
+            document.getElementById('add-block-btn').addEventListener('click', () => addTechnique('blocks', 'new-block'));
+            
+            document.getElementById('start-session').addEventListener('click', startSession);
+            document.getElementById('pause-session').addEventListener('click', pauseSession);
+            document.getElementById('stop-session').addEventListener('click', stopSession);
+            
+            // Enter key support
+            ['new-kick', 'new-punch', 'new-block'].forEach(id => {
+                document.getElementById(id).addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        const type = id.split('-')[1];
+                        addTechnique(type, id);
+                    }
+                });
+            });
+            
+            updateTimerDisplay();
+        }
+
+        // Start when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
