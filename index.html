@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Box | Portfolio Project</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2e7d32;
+            --primary-dark: #1b5e20;
+            --primary-light: #4caf50;
+            --accent: #ff9800;
+            --accent-dark: #f57c00;
+            --bg-light: #f8f9fa;
+            --bg-white: #ffffff;
+            --text-dark: #2e2e2e;
+            --text-muted: #6c757d;
+            --border: #dee2e6;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--bg-white);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 600px;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 300px;
+            background: var(--bg-light);
+            border-right: 1px solid var(--border);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .recipes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .recipes-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .add-recipe-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .add-recipe-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.1);
+        }
+
+        .recipes-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .recipe-item {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .recipe-item:hover {
+            background: rgba(46, 125, 50, 0.05);
+            border-color: var(--primary-light);
+        }
+
+        .recipe-item.active {
+            background: rgba(46, 125, 50, 0.1);
+            border-color: var(--primary);
+        }
+
+        .recipe-name {
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .recipe-actions {
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .recipe-item:hover .recipe-actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .edit-btn {
+            color: var(--primary);
+        }
+
+        .edit-btn:hover {
+            background: rgba(46, 125, 50, 0.1);
+        }
+
+        .delete-btn {
+            color: #dc3545;
+        }
+
+        .delete-btn:hover {
+            background: rgba(220, 53, 69, 0.1);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .recipe-view {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .recipe-detail {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .recipe-detail.active {
+            display: flex;
+        }
+
+        .recipe-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .recipe-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .recipe-actions-large {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: rgba(46, 125, 50, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .recipe-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .ingredients-section, .instructions-section {
+            background: var(--bg-light);
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ingredients-list, .instructions-list {
+            list-style: none;
+        }
+
+        .ingredient-item, .instruction-item {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .ingredient-item:last-child, .instruction-item:last-child {
+            border-bottom: none;
+        }
+
+        .ingredient-checkbox {
+            margin-top: 3px;
+        }
+
+        .instruction-number {
+            background: var(--primary);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        /* Form Styles */
+        .recipe-form {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .recipe-form.active {
+            display: flex;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .form-input, .form-textarea {
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .ingredients-input, .instructions-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .ingredients-input input, .instructions-input input {
+            flex: 1;
+        }
+
+        .add-item-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .add-item-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .ingredients-list-edit, .instructions-list-edit {
+            list-style: none;
+            margin-top: 10px;
+        }
+
+        .ingredient-item-edit, .instruction-item-edit {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ingredient-item-edit:last-child, .instruction-item-edit:last-child {
+            border-bottom: none;
+        }
+
+        .ingredient-item-edit input, .instruction-item-edit input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+
+        .remove-item-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+            
+            .recipe-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .recipe-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .recipe-actions-large {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-utensils"></i>
+            </div>
+            <h1>Recipe Box</h1>
+            <p class="subtitle">Store, organize, and access your favorite recipes anytime, anywhere</p>
+        </header>
+        
+        <div class="app-container">
+            <div class="sidebar">
+                <div class="recipes-header">
+                    <div class="recipes-title">My Recipes</div>
+                    <button class="add-recipe-btn" id="add-recipe-btn">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                
+                <div class="recipes-list" id="recipes-list">
+                    <!-- Recipes will be populated here -->
+                </div>
+            </div>
+            
+            <div class="main-content">
+                <div class="recipe-view">
+                    <div class="empty-state" id="empty-state">
+                        <i class="fas fa-book-open"></i>
+                        <h3>No Recipe Selected</h3>
+                        <p>Choose a recipe from the sidebar or create a new one to get started</p>
+                    </div>
+                    
+                    <div class="recipe-detail" id="recipe-detail">
+                        <div class="recipe-header">
+                            <h2 class="recipe-title" id="recipe-title">Recipe Name</h2>
+                            <div class="recipe-actions-large">
+                                <button class="btn btn-outline" id="edit-recipe-btn">
+                                    <i class="fas fa-edit"></i>
+                                    Edit Recipe
+                                </button>
+                                <button class="btn btn-primary" id="new-recipe-btn">
+                                    <i class="fas fa-plus"></i>
+                                    New Recipe
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="recipe-content">
+                            <div class="ingredients-section">
+                                <h3 class="section-title">
+                                    <i class="fas fa-shopping-basket"></i>
+                                    Ingredients
+                                </h3>
+                                <ul class="ingredients-list" id="ingredients-list">
+                                    <!-- Ingredients will be populated here -->
+                                </ul>
+                            </div>
+                            
+                            <div class="instructions-section">
+                                <h3 class="section-title">
+                                    <i class="fas fa-list-ol"></i>
+                                    Instructions
+                                </h3>
+                                <ol class="instructions-list" id="instructions-list">
+                                    <!-- Instructions will be populated here -->
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recipe-form" id="recipe-form">
+                        <div class="form-group">
+                            <label class="form-label" for="recipe-name">Recipe Name</label>
+                            <input type="text" class="form-input" id="recipe-name" placeholder="Enter recipe name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Ingredients</label>
+                            <div class="ingredients-input">
+                                <input type="text" id="new-ingredient" placeholder="Add an ingredient">
+                                <button class="add-item-btn" id="add-ingredient-btn">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <ul class="ingredients-list-edit" id="ingredients-list-edit">
+                                <!-- Editable ingredients will be populated here -->
+                            </ul>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Instructions</label>
+                            <div class="instructions-input">
+                                <input type="text" id="new-instruction" placeholder="Add a step">
+                                <button class="add-item-btn" id="add-instruction-btn">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <ul class="instructions-list-edit" id="instructions-list-edit">
+                                <!-- Editable instructions will be populated here -->
+                            </ul>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button class="btn btn-outline" id="cancel-edit-btn">
+                                Cancel
+                            </button>
+                            <button class="btn btn-primary" id="save-recipe-btn">
+                                Save Recipe
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Built as a Portfolio Project | Recipe Box with Local Storage</p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM Elements
+        const recipesList = document.getElementById('recipes-list');
+        const emptyState = document.getElementById('empty-state');
+        const recipeDetail = document.getElementById('recipe-detail');
+        const recipeForm = document.getElementById('recipe-form');
+        const recipeTitle = document.getElementById('recipe-title');
+        const ingredientsList = document.getElementById('ingredients-list');
+        const instructionsList = document.getElementById('instructions-list');
+        const addRecipeBtn = document.getElementById('add-recipe-btn');
+        const editRecipeBtn = document.getElementById('edit-recipe-btn');
+        const newRecipeBtn = document.getElementById('new-recipe-btn');
+        const saveRecipeBtn = document.getElementById('save-recipe-btn');
+        const cancelEditBtn = document.getElementById('cancel-edit-btn');
+        const recipeNameInput = document.getElementById('recipe-name');
+        const newIngredientInput = document.getElementById('new-ingredient');
+        const addIngredientBtn = document.getElementById('add-ingredient-btn');
+        const ingredientsListEdit = document.getElementById('ingredients-list-edit');
+        const newInstructionInput = document.getElementById('new-instruction');
+        const addInstructionBtn = document.getElementById('add-instruction-btn');
+        const instructionsListEdit = document.getElementById('instructions-list-edit');
+
+        // Application state
+        let recipes = [];
+        let currentRecipeId = null;
+        let isEditing = false;
+
+        // LocalStorage key
+        const STORAGE_KEY = '_portfolio_recipe_box';
+
+        // Initialize the application
+        function initApp() {
+            loadRecipes();
+            setupEventListeners();
+            renderRecipesList();
+            showEmptyState();
+        }
+
+        // Load recipes from localStorage
+        function loadRecipes() {
+            const storedRecipes = localStorage.getItem(STORAGE_KEY);
+            if (storedRecipes) {
+                recipes = JSON.parse(storedRecipes);
+            } else {
+                // Add some sample recipes if none exist
+                recipes = [
+                    {
+                        id: 1,
+                        name: 'Classic Pancakes',
+                        ingredients: [
+                            '1 cup all-purpose flour',
+                            '2 tablespoons sugar',
+                            '2 teaspoons baking powder',
+                            '1/2 teaspoon salt',
+                            '1 cup milk',
+                            '1 large egg',
+                            '2 tablespoons melted butter'
+                        ],
+                        instructions: [
+                            'Mix dry ingredients in a bowl',
+                            'In another bowl, mix wet ingredients',
+                            'Combine wet and dry ingredients',
+                            'Heat a griddle over medium heat',
+                            'Pour 1/4 cup batter for each pancake',
+                            'Cook until bubbles form, then flip',
+                            'Cook until golden brown'
+                        ]
+                    },
+                    {
+                        id: 2,
+                        name: 'Vegetable Stir Fry',
+                        ingredients: [
+                            '2 tablespoons vegetable oil',
+                            '1 onion, sliced',
+                            '2 bell peppers, sliced',
+                            '2 carrots, julienned',
+                            '2 cloves garlic, minced',
+                            '1 tablespoon ginger, grated',
+                            '3 tablespoons soy sauce',
+                            '1 tablespoon sesame oil'
+                        ],
+                        instructions: [
+                            'Heat oil in a wok or large pan',
+                            'Add onions and cook for 2 minutes',
+                            'Add carrots and cook for 3 minutes',
+                            'Add bell peppers and cook for 2 minutes',
+                            'Add garlic and ginger, cook for 1 minute',
+                            'Add soy sauce and sesame oil',
+                            'Stir fry for another 2 minutes',
+                            'Serve hot with rice'
+                        ]
+                    }
+                ];
+                saveRecipes();
+            }
+        }
+
+        // Save recipes to localStorage
+        function saveRecipes() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes));
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            addRecipeBtn.addEventListener('click', startNewRecipe);
+            newRecipeBtn.addEventListener('click', startNewRecipe);
+            editRecipeBtn.addEventListener('click', startEditRecipe);
+            saveRecipeBtn.addEventListener('click', saveRecipe);
+            cancelEditBtn.addEventListener('click', cancelEdit);
+            
+            addIngredientBtn.addEventListener('click', addIngredient);
+            newIngredientInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addIngredient();
+            });
+            
+            addInstructionBtn.addEventListener('click', addInstruction);
+            newInstructionInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addInstruction();
+            });
+        }
+
+        // Render the recipes list in the sidebar
+        function renderRecipesList() {
+            recipesList.innerHTML = '';
+            
+            if (recipes.length === 0) {
+                recipesList.innerHTML = '<div class="empty-state">No recipes yet</div>';
+                return;
+            }
+            
+            recipes.forEach(recipe => {
+                const recipeElement = document.createElement('div');
+                recipeElement.className = `recipe-item ${currentRecipeId === recipe.id ? 'active' : ''}`;
+                recipeElement.innerHTML = `
+                    <div class="recipe-name">${recipe.name}</div>
+                    <div class="recipe-actions">
+                        <button class="action-btn edit-btn" data-id="${recipe.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn delete-btn" data-id="${recipe.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                recipeElement.addEventListener('click', () => {
+                    selectRecipe(recipe.id);
+                });
+                
+                // Add event listeners for action buttons
+                const editBtn = recipeElement.querySelector('.edit-btn');
+                const deleteBtn = recipeElement.querySelector('.delete-btn');
+                
+                editBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    startEditRecipe(recipe.id);
+                });
+                
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteRecipe(recipe.id);
+                });
+                
+                recipesList.appendChild(recipeElement);
+            });
+        }
+
+        // Select a recipe to view
+        function selectRecipe(recipeId) {
+            currentRecipeId = recipeId;
+            const recipe = recipes.find(r => r.id === recipeId);
+            
+            if (recipe) {
+                recipeTitle.textContent = recipe.name;
+                
+                // Render ingredients
+                ingredientsList.innerHTML = '';
+                recipe.ingredients.forEach(ingredient => {
+                    const li = document.createElement('li');
+                    li.className = 'ingredient-item';
+                    li.innerHTML = `
+                        <input type="checkbox" class="ingredient-checkbox">
+                        <span>${ingredient}</span>
+                    `;
+                    ingredientsList.appendChild(li);
+                });
+                
+                // Render instructions
+                instructionsList.innerHTML = '';
+                recipe.instructions.forEach((instruction, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'instruction-item';
+                    li.innerHTML = `
+                        <div class="instruction-number">${index + 1}</div>
+                        <div>${instruction}</div>
+                    `;
+                    instructionsList.appendChild(li);
+                });
+                
+                showRecipeDetail();
+            }
+            
+            renderRecipesList();
+        }
+
+        // Start creating a new recipe
+        function startNewRecipe() {
+            currentRecipeId = null;
+            recipeNameInput.value = '';
+            ingredientsListEdit.innerHTML = '';
+            instructionsListEdit.innerHTML = '';
+            showRecipeForm();
+        }
+
+        // Start editing a recipe
+        function startEditRecipe(recipeId = null) {
+            const id = recipeId || currentRecipeId;
+            if (!id) return;
+            
+            const recipe = recipes.find(r => r.id === id);
+            if (!recipe) return;
+            
+            currentRecipeId = id;
+            recipeNameInput.value = recipe.name;
+            
+            // Populate ingredients for editing
+            ingredientsListEdit.innerHTML = '';
+            recipe.ingredients.forEach(ingredient => {
+                addIngredientToForm(ingredient);
+            });
+            
+            // Populate instructions for editing
+            instructionsListEdit.innerHTML = '';
+            recipe.instructions.forEach(instruction => {
+                addInstructionToForm(instruction);
+            });
+            
+            showRecipeForm();
+        }
+
+        // Save a recipe (create or update)
+        function saveRecipe() {
+            const name = recipeNameInput.value.trim();
+            const ingredients = Array.from(ingredientsListEdit.querySelectorAll('input'))
+                .map(input => input.value.trim())
+                .filter(value => value !== '');
+                
+            const instructions = Array.from(instructionsListEdit.querySelectorAll('input'))
+                .map(input => input.value.trim())
+                .filter(value => value !== '');
+            
+            if (!name) {
+                alert('Please enter a recipe name');
+                return;
+            }
+            
+            if (ingredients.length === 0) {
+                alert('Please add at least one ingredient');
+                return;
+            }
+            
+            if (instructions.length === 0) {
+                alert('Please add at least one instruction');
+                return;
+            }
+            
+            if (currentRecipeId) {
+                // Update existing recipe
+                const recipeIndex = recipes.findIndex(r => r.id === currentRecipeId);
+                if (recipeIndex !== -1) {
+                    recipes[recipeIndex] = {
+                        ...recipes[recipeIndex],
+                        name,
+                        ingredients,
+                        instructions
+                    };
+                }
+            } else {
+                // Create new recipe
+                const newId = recipes.length > 0 ? Math.max(...recipes.map(r => r.id)) + 1 : 1;
+                recipes.push({
+                    id: newId,
+                    name,
+                    ingredients,
+                    instructions
+                });
+                currentRecipeId = newId;
+            }
+            
+            saveRecipes();
+            renderRecipesList();
+            selectRecipe(currentRecipeId);
+        }
+
+        // Delete a recipe
+        function deleteRecipe(recipeId) {
+            if (confirm('Are you sure you want to delete this recipe?')) {
+                recipes = recipes.filter(r => r.id !== recipeId);
+                saveRecipes();
+                
+                if (currentRecipeId === recipeId) {
+                    currentRecipeId = null;
+                    showEmptyState();
+                }
+                
+                renderRecipesList();
+            }
+        }
+
+        // Cancel editing
+        function cancelEdit() {
+            if (currentRecipeId) {
+                selectRecipe(currentRecipeId);
+            } else {
+                showEmptyState();
+            }
+        }
+
+        // Add an ingredient to the form
+        function addIngredient() {
+            const value = newIngredientInput.value.trim();
+            if (value) {
+                addIngredientToForm(value);
+                newIngredientInput.value = '';
+                newIngredientInput.focus();
+            }
+        }
+
+        function addIngredientToForm(value) {
+            const li = document.createElement('li');
+            li.className = 'ingredient-item-edit';
+            li.innerHTML = `
+                <input type="text" value="${value}">
+                <button type="button" class="remove-item-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            const removeBtn = li.querySelector('.remove-item-btn');
+            removeBtn.addEventListener('click', () => {
+                li.remove();
+            });
+            
+            ingredientsListEdit.appendChild(li);
+        }
+
+        // Add an instruction to the form
+        function addInstruction() {
+            const value = newInstructionInput.value.trim();
+            if (value) {
+                addInstructionToForm(value);
+                newInstructionInput.value = '';
+                newInstructionInput.focus();
+            }
+        }
+
+        function addInstructionToForm(value) {
+            const li = document.createElement('li');
+            li.className = 'instruction-item-edit';
+            li.innerHTML = `
+                <input type="text" value="${value}">
+                <button type="button" class="remove-item-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            const removeBtn = li.querySelector('.remove-item-btn');
+            removeBtn.addEventListener('click', () => {
+                li.remove();
+            });
+            
+            instructionsListEdit.appendChild(li);
+        }
+
+        // View state management
+        function showEmptyState() {
+            emptyState.style.display = 'block';
+            recipeDetail.style.display = 'none';
+            recipeForm.style.display = 'none';
+        }
+
+        function showRecipeDetail() {
+            emptyState.style.display = 'none';
+            recipeDetail.style.display = 'flex';
+            recipeForm.style.display = 'none';
+        }
+
+        function showRecipeForm() {
+            emptyState.style.display = 'none';
+            recipeDetail.style.display = 'none';
+            recipeForm.style.display = 'flex';
+        }
+
+        // Initialize the app when the page loads
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
