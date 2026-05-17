@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caesar Cipher Decoder | Portfolio Project</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .cipher-explanation {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+
+        .cipher-explanation h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 120px;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .shift-control {
+            margin-bottom: 25px;
+        }
+
+        .shift-slider {
+            width: 100%;
+            margin: 15px 0;
+        }
+
+        .shift-value {
+            text-align: center;
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.2rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .decode-btn {
+            background: #667eea;
+            color: white;
+        }
+
+        .decode-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .clear-btn {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e1e5e9;
+        }
+
+        .clear-btn:hover {
+            background: #e9ecef;
+        }
+
+        .result-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+
+        .result-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        #result {
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+            min-height: 60px;
+            word-wrap: break-word;
+        }
+
+        .examples {
+            margin-top: 30px;
+        }
+
+        .examples h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .example-item {
+            background: white;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .example-item:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .example-encoded {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .example-decoded {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Caesar Cipher Decoder</h1>
+            <p>Decode messages encrypted with the ROT13 cipher or any Caesar shift</p>
+        </div>
+
+        <div class="cipher-explanation">
+            <h3>About Caesar Cipher</h3>
+            <p>The Caesar cipher is one of the simplest encryption techniques where each letter in the plaintext is shifted a fixed number of positions down the alphabet. ROT13 is a special case where the shift is 13 positions.</p>
+        </div>
+
+        <div class="input-group">
+            <label for="inputText">Encoded Text (Uppercase):</label>
+            <textarea id="inputText" placeholder="Enter your ROT13 encoded text here..."></textarea>
+        </div>
+
+        <div class="shift-control">
+            <label for="shiftAmount">Shift Amount:</label>
+            <input type="range" id="shiftAmount" class="shift-slider" min="1" max="25" value="13">
+            <div class="shift-value">13 (ROT13)</div>
+        </div>
+
+        <div class="button-group">
+            <button class="decode-btn" onclick="decodeText()">Decode Message</button>
+            <button class="clear-btn" onclick="clearText()">Clear All</button>
+        </div>
+
+        <div class="result-section">
+            <h3>Decoded Message:</h3>
+            <div id="result">Your decoded text will appear here...</div>
+        </div>
+
+        <div class="examples">
+            <h3>Example Encoded Messages:</h3>
+            <div class="example-item" onclick="loadExample('SERR PBQR PNZC', 'FREE CODE CAMP')">
+                <div class="example-encoded">SERR PBQR PNZC</div>
+                <div class="example-decoded">Decodes to: FREE CODE CAMP</div>
+            </div>
+            <div class="example-item" onclick="loadExample('SERR CVMMN!', 'FREE PIZZA!')">
+                <div class="example-encoded">SERR CVMMN!</div>
+                <div class="example-decoded">Decodes to: FREE PIZZA!</div>
+            </div>
+            <div class="example-item" onclick="loadExample('SERR YBIR?', 'FREE LOVE?')">
+                <div class="example-encoded">SERR YBIR?</div>
+                <div class="example-decoded">Decodes to: FREE LOVE?</div>
+            </div>
+            <div class="example-item" onclick="loadExample('GUR DHVPX OEBJA SBK WHZCF BIRE GUR YNML QBT.', 'THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG.')">
+                <div class="example-encoded">GUR DHVPX OEBJA SBK WHZCF BIRE GUR YNML QBT.</div>
+                <div class="example-decoded">Decodes to: THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Core ROT13 decoding function
+        function rot13(str) {
+            return str.replace(/[A-Z]/g, (char) => {
+                const charCode = char.charCodeAt(0);
+                // Shift uppercase letters by 13 positions
+                if (charCode >= 65 && charCode <= 90) {
+                    return String.fromCharCode(((charCode - 65 + 13) % 26) + 65);
+                }
+                return char;
+            });
+        }
+
+        // Generalized Caesar cipher decoder
+        function caesarCipher(str, shift) {
+            return str.replace(/[A-Z]/g, (char) => {
+                const charCode = char.charCodeAt(0);
+                if (charCode >= 65 && charCode <= 90) {
+                    // Handle negative shifts by adding 26
+                    let newCode = ((charCode - 65 + shift) % 26) + 65;
+                    if (newCode < 65) newCode += 26;
+                    return String.fromCharCode(newCode);
+                }
+                return char;
+            });
+        }
+
+        // DOM manipulation functions
+        function decodeText() {
+            const inputText = document.getElementById('inputText').value.toUpperCase();
+            const shiftAmount = parseInt(document.getElementById('shiftAmount').value);
+            const resultElement = document.getElementById('result');
+            
+            if (!inputText.trim()) {
+                resultElement.textContent = 'Please enter some text to decode.';
+                resultElement.style.color = '#dc3545';
+                return;
+            }
+
+            const decodedText = caesarCipher(inputText, 26 - shiftAmount); // Decode by shifting backwards
+            resultElement.textContent = decodedText;
+            resultElement.style.color = '#333';
+        }
+
+        function clearText() {
+            document.getElementById('inputText').value = '';
+            document.getElementById('result').textContent = 'Your decoded text will appear here...';
+            document.getElementById('result').style.color = '#666';
+            document.getElementById('shiftAmount').value = 13;
+            updateShiftValue();
+        }
+
+        function loadExample(encoded, decoded) {
+            document.getElementById('inputText').value = encoded;
+            document.getElementById('result').textContent = decoded;
+            document.getElementById('result').style.color = '#333';
+        }
+
+        function updateShiftValue() {
+            const shiftAmount = document.getElementById('shiftAmount').value;
+            const shiftValueElement = document.querySelector('.shift-value');
+            
+            if (shiftAmount == 13) {
+                shiftValueElement.textContent = '13 (ROT13)';
+            } else {
+                shiftValueElement.textContent = shiftAmount;
+            }
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            const slider = document.getElementById('shiftAmount');
+            slider.addEventListener('input', updateShiftValue);
+            
+            // Add keyboard shortcut (Ctrl + Enter) to decode
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    decodeText();
+                }
+            });
+        });
+
+        // Test function to verify the implementation meets requirements
+        function runTests() {
+            const testCases = [
+                { input: "SERR PBQR PNZC", expected: "FREE CODE CAMP" },
+                { input: "SERR CVMMN!", expected: "FREE PIZZA!" },
+                { input: "SERR YBIR?", expected: "FREE LOVE?" },
+                { input: "GUR DHVPX OEBJA SBK WHZCF BIRE GUR YNML QBT.", expected: "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG." }
+            ];
+
+            console.log("Running tests...");
+            testCases.forEach((test, index) => {
+                const result = rot13(test.input);
+                const passed = result === test.expected;
+                console.log(`Test ${index + 1}: ${passed ? 'PASSED' : 'FAILED'}`);
+                if (!passed) {
+                    console.log(`  Input: ${test.input}`);
+                    console.log(`  Expected: ${test.expected}`);
+                    console.log(`  Got: ${result}`);
+                }
+            });
+        }
+
+        // Run tests when the page loads
+        runTests();
+    </script>
+</body>
+</html>
