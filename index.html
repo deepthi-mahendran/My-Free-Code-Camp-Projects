@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>freeCodeCamp Forum | Recent Posts</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #0a0a23;
+            --secondary: #1b1b32;
+            --accent: #ffcc00;
+            --accent-dark: #e6b800;
+            --text-light: #f5f6f7;
+            --text-muted: #d0d0d5;
+            --border: #2a2a40;
+            --success: #00cc66;
+            --warning: #ffad33;
+            --danger: #ff4444;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            color: var(--accent);
+        }
+
+        .logo-text {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .logo-subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-left: 10px;
+        }
+
+        .search-bar {
+            display: flex;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .search-button {
+            background: var(--accent);
+            color: var(--primary);
+            border: none;
+            padding: 0 20px;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .search-button:hover {
+            background: var(--accent-dark);
+        }
+
+        .forum-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .filter-btn.active {
+            background: var(--accent);
+            color: var(--primary);
+            border-color: var(--accent);
+        }
+
+        .posts-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .post-card {
+            background: var(--secondary);
+            border-radius: 12px;
+            padding: 20px;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .post-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .post-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .post-title a {
+            color: var(--text-light);
+            text-decoration: none;
+        }
+
+        .post-title a:hover {
+            color: var(--accent);
+        }
+
+        .post-category {
+            display: inline-block;
+            background: rgba(255, 204, 0, 0.2);
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .post-meta {
+            display: flex;
+            gap: 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .post-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 60px;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .post-participants {
+            margin-top: 15px;
+        }
+
+        .participants-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .participants-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .participant {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+
+        .participant-avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .post-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        .last-activity {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            gap: 20px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 204, 0, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 68, 68, 0.1);
+            border-radius: 12px;
+            border: 1px solid var(--danger);
+        }
+
+        .error-icon {
+            font-size: 3rem;
+            color: var(--danger);
+            margin-bottom: 15px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+            
+            .search-bar {
+                max-width: 100%;
+            }
+            
+            .forum-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .filter-controls {
+                width: 100%;
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+            
+            .post-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .post-stats {
+                width: 100%;
+                justify-content: space-around;
+            }
+            
+            .post-footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fab fa-free-code-camp logo-icon"></i>
+                <div>
+                    <div class="logo-text">freeCodeCamp <span class="logo-subtitle">Forum</span></div>
+                </div>
+            </div>
+            
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="Search forum topics...">
+                <button class="search-button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </header>
+        
+        <div class="forum-header">
+            <h1>Recent Forum Posts</h1>
+            <div class="filter-controls">
+                <button class="filter-btn active">All Topics</button>
+                <button class="filter-btn">Popular</button>
+                <button class="filter-btn">Unanswered</button>
+                <button class="filter-btn">Latest</button>
+            </div>
+        </div>
+        
+        <div class="posts-container" id="posts-container">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading recent forum posts...</p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Built as a Portfolio Project | freeCodeCamp Forum Homepage</p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM Elements
+        const postsContainer = document.getElementById('posts-container');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const searchInput = document.querySelector('.search-input');
+        const searchButton = document.querySelector('.search-button');
+
+        // API endpoint
+        const API_URL = 'https://forum-proxy.freecodecamp.rocks/latest';
+
+        // Store posts data
+        let posts = [];
+        let filteredPosts = [];
+
+        // Fetch posts from API
+        async function fetchPosts() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                
+                if (data && data.topic_list && data.topic_list.topics) {
+                    posts = data.topic_list.topics;
+                    filteredPosts = [...posts];
+                    displayPosts();
+                } else {
+                    throw new Error('Invalid data format');
+                }
+            } catch (error) {
+                console.error('Error fetching forum posts:', error);
+                showError();
+            }
+        }
+
+        // Display posts in the UI
+        function displayPosts() {
+            if (filteredPosts.length === 0) {
+                postsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-comment-slash"></i>
+                        <h3>No posts found</h3>
+                        <p>Try adjusting your search or filter criteria</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            postsContainer.innerHTML = filteredPosts.map(post => {
+                // Format the last activity time
+                const lastActivity = formatTime(post.last_posted_at);
+                
+                // Get participants (limited to 5 for display)
+                const participants = post.participants ? post.participants.slice(0, 5) : [];
+                
+                return `
+                    <div class="post-card">
+                        <div class="post-header">
+                            <div class="post-content">
+                                <div class="post-category">${post.category_id || 'General'}</div>
+                                <h3 class="post-title">
+                                    <a href="https://forum.freecodecamp.org/t/${post.slug}/${post.id}" target="_blank">
+                                        ${post.title}
+                                    </a>
+                                </h3>
+                                <div class="post-meta">
+                                    <div class="meta-item">
+                                        <i class="fas fa-user"></i>
+                                        <span>Started by ${post.posters?.[0]?.description || 'Unknown'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="post-stats">
+                                <div class="stat">
+                                    <div class="stat-value">${post.posts_count || 0}</div>
+                                    <div class="stat-label">Replies</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">${post.views || 0}</div>
+                                    <div class="stat-label">Views</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">${post.like_count || 0}</div>
+                                    <div class="stat-label">Likes</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        ${participants.length > 0 ? `
+                            <div class="post-participants">
+                                <div class="participants-label">Recent Participants:</div>
+                                <div class="participants-list">
+                                    ${participants.map(participant => `
+                                        <div class="participant">
+                                            <div class="participant-avatar">
+                                                ${participant.user_id ? String(participant.user_id).charAt(0) : '?'}
+                                            </div>
+                                            <span>User${participant.user_id || '?'}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        <div class="post-footer">
+                            <div class="last-activity">
+                                <i class="far fa-clock"></i>
+                                <span>Last activity: ${lastActivity}</span>
+                            </div>
+                            <div class="post-actions">
+                                <button class="filter-btn">
+                                    <i class="far fa-comment"></i>
+                                    Join Discussion
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Format timestamp to readable time
+        function formatTime(timestamp) {
+            if (!timestamp) return 'Unknown';
+            
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / (1000 * 60));
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            
+            if (diffMins < 1) {
+                return 'Just now';
+            } else if (diffMins < 60) {
+                return `${diffMins} minute${diffMins === 1 ? '' : 's'} ago`;
+            } else if (diffHours < 24) {
+                return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
+            } else if (diffDays < 7) {
+                return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
+            } else {
+                return date.toLocaleDateString();
+            }
+        }
+
+        // Filter posts based on search term
+        function filterPosts(searchTerm) {
+            if (!searchTerm) {
+                filteredPosts = [...posts];
+            } else {
+                filteredPosts = posts.filter(post => 
+                    post.title.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            }
+            displayPosts();
+        }
+
+        // Show error state
+        function showError() {
+            postsContainer.innerHTML = `
+                <div class="error">
+                    <div class="error-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3>Failed to load forum posts</h3>
+                    <p>Please check your connection and try again later.</p>
+                    <button class="filter-btn" style="margin-top: 15px;" onclick="fetchPosts()">
+                        <i class="fas fa-redo"></i>
+                        Retry
+                    </button>
+                </div>
+            `;
+        }
+
+        // Set up event listeners for filter buttons
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // In a real implementation, this would filter by different criteria
+                // For this demo, we'll just reset to all posts
+                filteredPosts = [...posts];
+                displayPosts();
+            });
+        });
+
+        // Set up event listeners for search
+        searchButton.addEventListener('click', () => {
+            filterPosts(searchInput.value);
+        });
+
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                filterPosts(searchInput.value);
+            }
+        });
+
+        // Initialize the app
+        fetchPosts();
+    </script>
+</body>
+</html>
