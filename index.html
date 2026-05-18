@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Light Game | Simon Says</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --green: #00cc66;
+            --red: #ff4444;
+            --yellow: #ffcc00;
+            --blue: #3399ff;
+            --green-dark: #00aa55;
+            --red-dark: #cc3333;
+            --yellow-dark: #ddaa00;
+            --blue-dark: #2277cc;
+            --bg-dark: #1a1a2e;
+            --bg-darker: #16213e;
+            --text-light: #f0f0f0;
+            --accent: #e94560;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: var(--bg-dark);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            padding: 30px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--accent);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent), #ff6b9d);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .score-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .score-label {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 20px;
+            aspect-ratio: 1/1;
+            max-width: 400px;
+            margin: 0 auto 30px;
+        }
+
+        .game-button {
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .game-button:hover {
+            transform: scale(1.02);
+        }
+
+        .game-button.active {
+            transform: scale(0.95);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        #button-1 {
+            background: var(--green);
+        }
+
+        #button-1.active {
+            background: var(--green-dark);
+            box-shadow: 0 0 30px var(--green);
+        }
+
+        #button-2 {
+            background: var(--red);
+        }
+
+        #button-2.active {
+            background: var(--red-dark);
+            box-shadow: 0 0 30px var(--red);
+        }
+
+        #button-3 {
+            background: var(--yellow);
+        }
+
+        #button-3.active {
+            background: var(--yellow-dark);
+            box-shadow: 0 0 30px var(--yellow);
+        }
+
+        #button-4 {
+            background: var(--blue);
+        }
+
+        #button-4.active {
+            background: var(--blue-dark);
+            box-shadow: 0 0 30px var(--blue);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #d43a55;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .mode-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .message {
+            text-align: center;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .message.active {
+            display: block;
+        }
+
+        .message.win {
+            background: rgba(0, 204, 102, 0.2);
+            color: var(--green);
+        }
+
+        .message.error {
+            background: rgba(255, 68, 68, 0.2);
+            color: var(--red);
+        }
+
+        .message.info {
+            background: rgba(51, 153, 255, 0.2);
+            color: var(--blue);
+        }
+
+        .instructions {
+            margin-top: 25px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: var(--accent);
+        }
+
+        .instructions ul {
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .game-board {
+                gap: 15px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 200px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+            </div>
+            <h1>Memory Light Game</h1>
+            <p class="subtitle">Test your memory with this Simon Says style game</p>
+        </header>
+        
+        <div class="game-info">
+            <div class="score-display">
+                <div class="score-label">Round</div>
+                <div class="score-value" id="round-counter">1</div>
+            </div>
+            
+            <div class="score-display">
+                <div class="score-label">Best</div>
+                <div class="score-value" id="best-score">0</div>
+            </div>
+        </div>
+        
+        <div class="game-board">
+            <div class="game-button" id="button-1" data-sound="1">
+                <i class="fas fa-music"></i>
+            </div>
+            <div class="game-button" id="button-2" data-sound="2">
+                <i class="fas fa-music"></i>
+            </div>
+            <div class="game-button" id="button-3" data-sound="3">
+                <i class="fas fa-music"></i>
+            </div>
+            <div class="game-button" id="button-4" data-sound="4">
+                <i class="fas fa-music"></i>
+            </div>
+        </div>
+        
+        <div class="mode-toggle">
+            <span>Strict Mode:</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="strict-mode">
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="message" id="game-message"></div>
+        
+        <div class="controls">
+            <button class="btn btn-secondary" id="start-btn">
+                <i class="fas fa-play"></i>
+                Start Game
+            </button>
+            <button class="btn btn-primary" id="restart-btn">
+                <i class="fas fa-redo"></i>
+                Restart
+            </button>
+        </div>
+        
+        <div class="instructions">
+            <h3>How to Play:</h3>
+            <ul>
+                <li>Watch the sequence of lights and sounds</li>
+                <li>Repeat the sequence by clicking the buttons in the same order</li>
+                <li>Each round adds one more step to the sequence</li>
+                <li>Win by completing 20 rounds!</li>
+                <li>In strict mode, one mistake restarts the game from round 1</li>
+            </ul>
+        </div>
+        
+        <footer>
+            <p>Built as a Portfolio Project | Memory Light Game</p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM Elements
+        const gameButtons = document.querySelectorAll('.game-button');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const roundCounter = document.getElementById('round-counter');
+        const bestScore = document.getElementById('best-score');
+        const gameMessage = document.getElementById('game-message');
+        const strictModeToggle = document.getElementById('strict-mode');
+
+        // Game state
+        let sequence = [];
+        let playerSequence = [];
+        let round = 1;
+        let bestRound = 0;
+        let isPlaying = false;
+        let isPlayerTurn = false;
+        let strictMode = false;
+
+        // Sound URLs
+        const sounds = {
+            1: 'https://cdn.freecodecamp.org/curriculum/take-home-projects/memory-light-game/sound-1.mp3',
+            2: 'https://cdn.freecodecamp.org/curriculum/take-home-projects/memory-light-game/sound-2.mp3',
+            3: 'https://cdn.freecodecamp.org/curriculum/take-home-projects/memory-light-game/sound-3.mp3',
+            4: 'https://cdn.freecodecamp.org/curriculum/take-home-projects/memory-light-game/sound-4.mp3'
+        };
+
+        // Preload sounds
+        const audioElements = {};
+        for (let key in sounds) {
+            audioElements[key] = new Audio(sounds[key]);
+        }
+
+        // Initialize the game
+        function initGame() {
+            // Set up event listeners for game buttons
+            gameButtons.forEach(button => {
+                button.addEventListener('click', handleButtonClick);
+            });
+
+            // Set up event listeners for control buttons
+            startBtn.addEventListener('click', startGame);
+            restartBtn.addEventListener('click', restartGame);
+
+            // Set up event listener for strict mode toggle
+            strictModeToggle.addEventListener('change', function() {
+                strictMode = this.checked;
+            });
+
+            // Update best score from localStorage if available
+            const savedBest = localStorage.getItem('memoryGameBestScore');
+            if (savedBest) {
+                bestRound = parseInt(savedBest);
+                bestScore.textContent = bestRound;
+            }
+        }
+
+        // Start the game
+        function startGame() {
+            if (isPlaying) return;
+            
+            isPlaying = true;
+            sequence = [];
+            playerSequence = [];
+            round = 1;
+            updateRoundCounter();
+            
+            startBtn.disabled = true;
+            showMessage('Watch the sequence carefully!', 'info');
+            
+            // Start the first round after a short delay
+            setTimeout(() => {
+                nextRound();
+            }, 1500);
+        }
+
+        // Restart the game
+        function restartGame() {
+            isPlaying = false;
+            isPlayerTurn = false;
+            sequence = [];
+            playerSequence = [];
+            round = 1;
+            updateRoundCounter();
+            hideMessage();
+            startBtn.disabled = false;
+        }
+
+        // Proceed to the next round
+        function nextRound() {
+            if (round > 20) {
+                winGame();
+                return;
+            }
+            
+            playerSequence = [];
+            isPlayerTurn = false;
+            
+            // Add a new random step to the sequence
+            const nextStep = Math.floor(Math.random() * 4) + 1;
+            sequence.push(nextStep);
+            
+            updateRoundCounter();
+            showMessage(`Round ${round} - Watch the sequence!`, 'info');
+            
+            // Play the sequence after a short delay
+            setTimeout(() => {
+                playSequence();
+            }, 1000);
+        }
+
+        // Play the current sequence
+        function playSequence() {
+            let i = 0;
+            
+            function playNext() {
+                if (i < sequence.length) {
+                    const buttonId = sequence[i];
+                    activateButton(buttonId);
+                    i++;
+                    setTimeout(playNext, 800);
+                } else {
+                    // After sequence is played, it's player's turn
+                    setTimeout(() => {
+                        isPlayerTurn = true;
+                        showMessage('Your turn! Repeat the sequence.', 'info');
+                    }, 500);
+                }
+            }
+            
+            playNext();
+        }
+
+        // Handle player button click
+        function handleButtonClick(e) {
+            if (!isPlayerTurn || !isPlaying) return;
+            
+            const buttonId = parseInt(e.currentTarget.dataset.sound);
+            playerSequence.push(buttonId);
+            
+            // Play sound and activate button
+            playSound(buttonId);
+            activateButton(buttonId);
+            
+            // Check if the player's move is correct
+            const currentIndex = playerSequence.length - 1;
+            if (playerSequence[currentIndex] !== sequence[currentIndex]) {
+                // Wrong move
+                handleWrongMove();
+                return;
+            }
+            
+            // Check if the player completed the sequence
+            if (playerSequence.length === sequence.length) {
+                // Correct sequence
+                handleCorrectSequence();
+            }
+        }
+
+        // Handle correct sequence
+        function handleCorrectSequence() {
+            if (round === 20) {
+                winGame();
+                return;
+            }
+            
+            round++;
+            showMessage('Correct! Get ready for the next round.', 'info');
+            
+            // Proceed to next round after a delay
+            setTimeout(() => {
+                nextRound();
+            }, 1500);
+        }
+
+        // Handle wrong move
+        function handleWrongMove() {
+            playSound('error');
+            showMessage('Wrong sequence! Try again.', 'error');
+            
+            if (strictMode) {
+                // In strict mode, restart the game
+                setTimeout(() => {
+                    showMessage('Strict mode: Game restarted!', 'error');
+                    restartGame();
+                    setTimeout(startGame, 1500);
+                }, 1500);
+            } else {
+                // In normal mode, replay the sequence
+                isPlayerTurn = false;
+                setTimeout(() => {
+                    showMessage('Watch the sequence again.', 'info');
+                    playSequence();
+                }, 1500);
+            }
+        }
+
+        // Handle game win
+        function winGame() {
+            showMessage('Congratulations! You won the game!', 'win');
+            isPlaying = false;
+            startBtn.disabled = false;
+            
+            // Update best score if applicable
+            if (round > bestRound) {
+                bestRound = round;
+                bestScore.textContent = bestRound;
+                localStorage.setItem('memoryGameBestScore', bestRound);
+            }
+            
+            // Restart after a delay
+            setTimeout(() => {
+                restartGame();
+            }, 4000);
+        }
+
+        // Activate a button (visual and sound)
+        function activateButton(buttonId) {
+            const button = document.getElementById(`button-${buttonId}`);
+            button.classList.add('active');
+            playSound(buttonId);
+            
+            setTimeout(() => {
+                button.classList.remove('active');
+            }, 500);
+        }
+
+        // Play a sound
+        function playSound(soundId) {
+            if (audioElements[soundId]) {
+                // Clone the audio element to allow overlapping sounds
+                const audioClone = new Audio(audioElements[soundId].src);
+                audioClone.play();
+            }
+        }
+
+        // Update the round counter
+        function updateRoundCounter() {
+            roundCounter.textContent = round;
+        }
+
+        // Show a message
+        function showMessage(text, type) {
+            gameMessage.textContent = text;
+            gameMessage.className = `message active ${type}`;
+        }
+
+        // Hide the message
+        function hideMessage() {
+            gameMessage.className = 'message';
+        }
+
+        // Initialize the game when page loads
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
