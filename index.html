@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Previewer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #10b981;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --gray: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .app-container {
+            display: flex;
+            gap: 30px;
+            height: 75vh;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .app-container {
+                flex-direction: column;
+                height: auto;
+            }
+        }
+
+        .panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        #editor {
+            flex: 1;
+            border: none;
+            padding: 20px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 15px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+            background: var(--light);
+        }
+
+        #preview {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: var(--light);
+        }
+
+        /* Markdown Preview Styles */
+        #preview h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border);
+            color: var(--dark);
+        }
+
+        #preview h2 {
+            font-size: 1.5rem;
+            margin: 1.5rem 0 1rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--dark);
+        }
+
+        #preview h3 {
+            font-size: 1.25rem;
+            margin: 1.25rem 0 0.75rem;
+            color: var(--dark);
+        }
+
+        #preview p {
+            margin-bottom: 1rem;
+        }
+
+        #preview blockquote {
+            border-left: 4px solid var(--primary);
+            padding-left: 1rem;
+            margin: 1.5rem 0;
+            color: var(--gray);
+            font-style: italic;
+        }
+
+        #preview code {
+            background: #f3f4f6;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9em;
+        }
+
+        #preview pre {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        #preview pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+
+        #preview ul, #preview ol {
+            margin: 1rem 0 1rem 1.5rem;
+        }
+
+        #preview li {
+            margin-bottom: 0.5rem;
+        }
+
+        #preview a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        #preview a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        #preview img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            margin: 1rem 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #preview table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        #preview th, #preview td {
+            border: 1px solid var(--border);
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        #preview th {
+            background: var(--light);
+            font-weight: 600;
+        }
+
+        #preview tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .feature-desc {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            color: white;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Split view controls */
+        .view-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .view-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .view-btn.active {
+            background: white;
+            color: var(--primary);
+        }
+
+        .view-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .full-width {
+            width: 100%;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .app-container {
+                gap: 20px;
+            }
+            
+            .panel-header {
+                padding: 12px 15px;
+            }
+            
+            #editor, #preview {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Markdown Previewer</h1>
+            <p class="subtitle">A powerful tool to write and preview Markdown in real-time. Perfect for documentation, notes, and more.</p>
+        </header>
+
+        <div class="view-controls">
+            <button class="view-btn active" id="split-view-btn">
+                <i class="fas fa-columns"></i> Split View
+            </button>
+            <button class="view-btn" id="editor-view-btn">
+                <i class="fas fa-edit"></i> Editor Only
+            </button>
+            <button class="view-btn" id="preview-view-btn">
+                <i class="fas fa-eye"></i> Preview Only
+            </button>
+        </div>
+
+        <div class="app-container">
+            <div class="panel" id="editor-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fas fa-edit"></i>
+                        <span>Markdown Editor</span>
+                    </div>
+                    <div class="panel-actions">
+                        <button class="btn" id="clear-btn" title="Clear Editor">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button class="btn" id="maximize-editor" title="Maximize Editor">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+                <textarea id="editor"></textarea>
+            </div>
+
+            <div class="panel" id="preview-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fas fa-eye"></i>
+                        <span>Preview</span>
+                    </div>
+                    <div class="panel-actions">
+                        <button class="btn" id="maximize-preview" title="Maximize Preview">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="preview"></div>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-heading"></i>
+                </div>
+                <h3 class="feature-title">Headings</h3>
+                <p class="feature-desc">Create structured documents with multiple heading levels.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bold"></i>
+                </div>
+                <h3 class="feature-title">Text Formatting</h3>
+                <p class="feature-desc">Emphasize text with bold, italics, and other formatting options.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-code"></i>
+                </div>
+                <h3 class="feature-title">Code Blocks</h3>
+                <p class="feature-desc">Display code snippets with syntax highlighting.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-list"></i>
+                </div>
+                <h3 class="feature-title">Lists</h3>
+                <p class="feature-desc">Create ordered and unordered lists with ease.</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>Built with ❤️ for FreeCodeCamp | Markdown Previewer</p>
+        </footer>
+    </div>
+
+    <script>
+        // Default markdown content
+        const defaultMarkdown = `# Welcome to Markdown Previewer
+
+## This is a subheading
+
+Here's a [link to FreeCodeCamp](https://www.freecodecamp.org) and some **bolded text**.
+
+### Code Examples
+
+Inline code: \`const example = "Hello World!";\`
+
+Code block:
+\`\`\`javascript
+function greet(name) {
+  return \`Hello, \${name}!\`;
+}
+
+console.log(greet("Developer"));
+\`\`\`
+
+### Lists
+
+- First item
+- Second item
+- Third item
+
+1. Numbered item one
+2. Numbered item two
+3. Numbered item three
+
+### Blockquotes
+
+> This is a blockquote. It can span multiple lines and is great for highlighting important information.
+
+### Images
+
+![Markdown Logo](https://markdown-here.com/img/icon256.png)
+
+### Tables
+
+| Header 1 | Header 2 | Header 3 |
+|----------|----------|----------|
+| Row 1 Col 1 | Row 1 Col 2 | Row 1 Col 3 |
+| Row 2 Col 1 | Row 2 Col 2 | Row 2 Col 3 |
+| Row 3 Col 1 | Row 3 Col 2 | Row 3 Col 3 |
+
+Enjoy using this Markdown Previewer!`;
+
+        // DOM Elements
+        const editor = document.getElementById('editor');
+        const preview = document.getElementById('preview');
+        const clearBtn = document.getElementById('clear-btn');
+        const maximizeEditorBtn = document.getElementById('maximize-editor');
+        const maximizePreviewBtn = document.getElementById('maximize-preview');
+        const splitViewBtn = document.getElementById('split-view-btn');
+        const editorViewBtn = document.getElementById('editor-view-btn');
+        const previewViewBtn = document.getElementById('preview-view-btn');
+        const editorPanel = document.getElementById('editor-panel');
+        const previewPanel = document.getElementById('preview-panel');
+        const appContainer = document.querySelector('.app-container');
+
+        // Configure marked options
+        marked.setOptions({
+            breaks: true,
+            highlight: function(code, lang) {
+                // In a real app, you would use a proper syntax highlighter like highlight.js
+                return code;
+            }
+        });
+
+        // Initialize editor with default content
+        editor.value = defaultMarkdown;
+        preview.innerHTML = marked.parse(defaultMarkdown);
+
+        // Update preview on input
+        editor.addEventListener('input', updatePreview);
+
+        function updatePreview() {
+            const markdownText = editor.value;
+            preview.innerHTML = marked.parse(markdownText);
+        }
+
+        // Clear editor
+        clearBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear the editor?')) {
+                editor.value = '';
+                updatePreview();
+            }
+        });
+
+        // View controls
+        splitViewBtn.addEventListener('click', () => {
+            setViewMode('split');
+        });
+
+        editorViewBtn.addEventListener('click', () => {
+            setViewMode('editor');
+        });
+
+        previewViewBtn.addEventListener('click', () => {
+            setViewMode('preview');
+        });
+
+        function setViewMode(mode) {
+            // Reset all buttons
+            splitViewBtn.classList.remove('active');
+            editorViewBtn.classList.remove('active');
+            previewViewBtn.classList.remove('active');
+            
+            // Reset panels
+            editorPanel.classList.remove('hidden', 'full-width');
+            previewPanel.classList.remove('hidden', 'full-width');
+            appContainer.classList.remove('single-panel');
+            
+            // Apply selected mode
+            if (mode === 'split') {
+                splitViewBtn.classList.add('active');
+                // Already in split view by default
+            } else if (mode === 'editor') {
+                editorViewBtn.classList.add('active');
+                previewPanel.classList.add('hidden');
+                editorPanel.classList.add('full-width');
+                appContainer.classList.add('single-panel');
+            } else if (mode === 'preview') {
+                previewViewBtn.classList.add('active');
+                editorPanel.classList.add('hidden');
+                previewPanel.classList.add('full-width');
+                appContainer.classList.add('single-panel');
+            }
+        }
+
+        // Maximize panels
+        maximizeEditorBtn.addEventListener('click', () => {
+            setViewMode('editor');
+        });
+
+        maximizePreviewBtn.addEventListener('click', () => {
+            setViewMode('preview');
+        });
+
+        // Add keyboard shortcut for toggling views
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === '\\') {
+                e.preventDefault();
+                if (splitViewBtn.classList.contains('active')) {
+                    setViewMode('editor');
+                } else if (editorViewBtn.classList.contains('active')) {
+                    setViewMode('preview');
+                } else {
+                    setViewMode('split');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
