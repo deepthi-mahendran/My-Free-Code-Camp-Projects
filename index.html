@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeerConnect - P2P Video Chat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            color: #4FC3F7;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #4FC3F7, #29B6F6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: #B3E5FC;
+            margin-bottom: 30px;
+        }
+
+        .app-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .setup-panel, .video-panel {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #4FC3F7;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2 i {
+            font-size: 1.3rem;
+        }
+
+        .permission-step, .room-step, .video-step {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(90deg, #4FC3F7, #29B6F6);
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(41, 182, 246, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(41, 182, 246, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(90deg, #78909C, #546E7A);
+            box-shadow: 0 4px 15px rgba(84, 110, 122, 0.4);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 6px 20px rgba(84, 110, 122, 0.6);
+        }
+
+        .btn-danger {
+            background: linear-gradient(90deg, #EF5350, #E53935);
+            box-shadow: 0 4px 15px rgba(239, 83, 80, 0.4);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 6px 20px rgba(239, 83, 80, 0.6);
+        }
+
+        input {
+            padding: 14px 20px;
+            border-radius: 50px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #4FC3F7;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        input::placeholder {
+            color: #B3E5FC;
+        }
+
+        .video-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .video-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .video-wrapper {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #000;
+            aspect-ratio: 4/3;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-label {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .control-btn.active {
+            background: #4FC3F7;
+            color: #1e3c72;
+        }
+
+        .control-btn.end-call {
+            background: #EF5350;
+        }
+
+        .control-btn.end-call:hover {
+            background: #E53935;
+            transform: scale(1.1);
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 500;
+            margin: 10px 0;
+        }
+
+        .status.connected {
+            background: rgba(76, 175, 80, 0.2);
+            color: #81C784;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .status.waiting {
+            background: rgba(255, 152, 0, 0.2);
+            color: #FFB74D;
+            border: 1px solid rgba(255, 152, 0, 0.3);
+        }
+
+        .status.error {
+            background: rgba(244, 67, 54, 0.2);
+            color: #E57373;
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .room-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .room-name {
+            font-weight: 600;
+            color: #4FC3F7;
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .instructions h3 {
+            color: #4FC3F7;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .instructions ul {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .user-count {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #B3E5FC;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #B3E5FC;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .controls {
+                gap: 10px;
+            }
+            
+            .control-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-video"></i>
+                <h1>PeerConnect</h1>
+            </div>
+            <p class="tagline">Secure P2P video calls in your browser</p>
+        </header>
+
+        <div class="app-container">
+            <div class="setup-panel">
+                <div class="panel">
+                    <h2><i class="fas fa-cogs"></i> Setup</h2>
+                    
+                    <div class="step active" id="step1">
+                        <div class="permission-step">
+                            <p>To start a video call, we need access to your camera and microphone.</p>
+                            <button class="btn" id="requestPermissions">
+                                <i class="fas fa-camera"></i> Allow Camera & Microphone
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="step" id="step2">
+                        <div class="room-step">
+                            <p>Enter a room name to create or join a video call:</p>
+                            <input type="text" id="roomName" placeholder="Enter room name">
+                            <button class="btn" id="joinRoom">
+                                <i class="fas fa-sign-in-alt"></i> Join Room
+                            </button>
+                            <button class="btn btn-secondary" id="backToStep1">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="step" id="step3">
+                        <div class="room-info">
+                            <i class="fas fa-door-open"></i>
+                            <span>Room: <span class="room-name" id="currentRoom">...</span></span>
+                        </div>
+                        <div class="user-count">
+                            <i class="fas fa-users"></i>
+                            <span>Users in room: <span id="userCount">1</span>/2</span>
+                        </div>
+                        <div class="status waiting" id="roomStatus">
+                            Waiting for someone to join the room...
+                        </div>
+                        <button class="btn btn-danger" id="leaveRoom">
+                            <i class="fas fa-times"></i> Leave Room
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="instructions">
+                    <h3><i class="fas fa-info-circle"></i> How to use</h3>
+                    <ul>
+                        <li>Allow camera and microphone access when prompted</li>
+                        <li>Create a new room or join an existing one by name</li>
+                        <li>Share the room name with someone to invite them</li>
+                        <li>Each room supports up to 2 participants</li>
+                        <li>Enjoy your secure P2P video call!</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="video-panel">
+                <div class="panel">
+                    <h2><i class="fas fa-video"></i> Video Call</h2>
+                    
+                    <div class="video-container">
+                        <div class="video-wrapper">
+                            <video id="localVideo" autoplay muted></video>
+                            <div class="video-label">You</div>
+                        </div>
+                        <div class="video-wrapper">
+                            <video id="remoteVideo" autoplay></video>
+                            <div class="video-label">Partner</div>
+                        </div>
+                    </div>
+                    
+                    <div class="controls">
+                        <button class="control-btn" id="toggleVideo">
+                            <i class="fas fa-video"></i>
+                        </button>
+                        <button class="control-btn" id="toggleAudio">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <button class="control-btn" id="toggleFullscreen">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                        <button class="control-btn end-call" id="endCall">
+                            <i class="fas fa-phone-slash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="status connected hidden" id="callStatus">
+                    <i class="fas fa-check-circle"></i> Connected to room
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>PeerConnect &copy; 2023 | Secure P2P Video Chat | No data stored on servers</p>
+        </footer>
+    </div>
+
+    <!-- Socket.io client library -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    
+    <script>
+        // DOM Elements
+        const requestPermissionsBtn = document.getElementById('requestPermissions');
+        const joinRoomBtn = document.getElementById('joinRoom');
+        const backToStep1Btn = document.getElementById('backToStep1');
+        const leaveRoomBtn = document.getElementById('leaveRoom');
+        const roomNameInput = document.getElementById('roomName');
+        const currentRoomSpan = document.getElementById('currentRoom');
+        const userCountSpan = document.getElementById('userCount');
+        const roomStatusDiv = document.getElementById('roomStatus');
+        const callStatusDiv = document.getElementById('callStatus');
+        
+        const localVideo = document.getElementById('localVideo');
+        const remoteVideo = document.getElementById('remoteVideo');
+        
+        const toggleVideoBtn = document.getElementById('toggleVideo');
+        const toggleAudioBtn = document.getElementById('toggleAudio');
+        const toggleFullscreenBtn = document.getElementById('toggleFullscreen');
+        const endCallBtn = document.getElementById('endCall');
+        
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+        
+        // Application state
+        let localStream = null;
+        let remoteStream = null;
+        let peerConnection = null;
+        let socket = null;
+        let currentRoom = null;
+        let isVideoEnabled = true;
+        let isAudioEnabled = true;
+        
+        // WebRTC configuration (using free STUN servers)
+        const configuration = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        };
+        
+        // Step navigation functions
+        function showStep(stepElement) {
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active');
+            });
+            stepElement.classList.add('active');
+        }
+        
+        // Request camera and microphone permissions
+        requestPermissionsBtn.addEventListener('click', async () => {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: true, 
+                    audio: true 
+                });
+                
+                localVideo.srcObject = localStream;
+                
+                // Enable the video controls
+                toggleVideoBtn.classList.add('active');
+                toggleAudioBtn.classList.add('active');
+                
+                // Move to room selection step
+                showStep(step2);
+            } catch (error) {
+                console.error('Error accessing media devices:', error);
+                alert('Unable to access your camera and microphone. These are required for video calls. Please check your permissions and try again.');
+            }
+        });
+        
+        // Handle room joining
+        joinRoomBtn.addEventListener('click', () => {
+            const roomName = roomNameInput.value.trim();
+            
+            if (!roomName) {
+                alert('Please enter a valid room name');
+                return;
+            }
+            
+            if (roomName.length < 3) {
+                alert('Room name must be at least 3 characters long');
+                return;
+            }
+            
+            joinRoom(roomName);
+        });
+        
+        // Allow pressing Enter to join room
+        roomNameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                joinRoomBtn.click();
+            }
+        });
+        
+        // Back button
+        backToStep1Btn.addEventListener('click', () => {
+            showStep(step1);
+        });
+        
+        // Leave room button
+        leaveRoomBtn.addEventListener('click', () => {
+            leaveRoom();
+        });
+        
+        // Toggle video
+        toggleVideoBtn.addEventListener('click', () => {
+            if (localStream) {
+                const videoTrack = localStream.getVideoTracks()[0];
+                if (videoTrack) {
+                    videoTrack.enabled = !videoTrack.enabled;
+                    isVideoEnabled = videoTrack.enabled;
+                    toggleVideoBtn.classList.toggle('active', isVideoEnabled);
+                }
+            }
+        });
+        
+        // Toggle audio
+        toggleAudioBtn.addEventListener('click', () => {
+            if (localStream) {
+                const audioTrack = localStream.getAudioTracks()[0];
+                if (audioTrack) {
+                    audioTrack.enabled = !audioTrack.enabled;
+                    isAudioEnabled = audioTrack.enabled;
+                    toggleAudioBtn.classList.toggle('active', isAudioEnabled);
+                }
+            }
+        });
+        
+        // Toggle fullscreen
+        toggleFullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error('Error attempting to enable fullscreen:', err);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        });
+        
+        // End call
+        endCallBtn.addEventListener('click', () => {
+            leaveRoom();
+        });
+        
+        // Join a room
+        function joinRoom(roomName) {
+            // In a real application, you would connect to your own server
+            // For this demo, we'll simulate the connection
+            
+            currentRoom = roomName;
+            currentRoomSpan.textContent = roomName;
+            
+            // Show the room step
+            showStep(step3);
+            
+            // Simulate connecting to a room
+            roomStatusDiv.textContent = 'Connecting to room...';
+            
+            setTimeout(() => {
+                roomStatusDiv.textContent = 'Waiting for someone to join the room...';
+                callStatusDiv.classList.remove('hidden');
+                
+                // In a real app, you would initialize WebRTC connection here
+                // For demo purposes, we'll simulate a partner joining after 5 seconds
+                setTimeout(() => {
+                    simulatePartnerJoining();
+                }, 5000);
+            }, 1500);
+        }
+        
+        // Leave the current room
+        function leaveRoom() {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+            
+            if (remoteVideo.srcObject) {
+                remoteVideo.srcObject.getTracks().forEach(track => track.stop());
+            }
+            
+            // Reset UI
+            showStep(step1);
+            callStatusDiv.classList.add('hidden');
+            roomStatusDiv.textContent = 'Waiting for someone to join the room...';
+            userCountSpan.textContent = '1';
+            remoteVideo.srcObject = null;
+            
+            // Reset state
+            currentRoom = null;
+            isVideoEnabled = true;
+            isAudioEnabled = true;
+            
+            // Reset toggle buttons
+            toggleVideoBtn.classList.add('active');
+            toggleAudioBtn.classList.add('active');
+        }
+        
+        // Simulate a partner joining (for demo purposes)
+        function simulatePartnerJoining() {
+            roomStatusDiv.textContent = 'Partner joined the room!';
+            userCountSpan.textContent = '2';
+            
+            // In a real app, you would set up the WebRTC connection here
+            // For demo, we'll just show a placeholder for the remote video
+            remoteVideo.srcObject = localStream;
+        }
+        
+        // Initialize the app
+        function init() {
+            // Check if the browser supports WebRTC
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('Your browser does not support WebRTC. Please use a modern browser like Chrome, Firefox, or Edge.');
+                return;
+            }
+            
+            // Set up event listeners for demo purposes
+            // In a real application, you would set up Socket.io and WebRTC properly
+            
+            console.log('PeerConnect P2P Video Chat initialized');
+        }
+        
+        // Start the application
+        init();
+    </script>
+</body>
+</html>
