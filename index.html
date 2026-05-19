@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palindrome Checker | Portfolio Project</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 25px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result.true {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+            display: block;
+        }
+
+        .result.false {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+            display: block;
+        }
+
+        .processing {
+            background: #e2e3e5;
+            color: #383d41;
+            border: 2px solid #d6d8db;
+            display: block;
+        }
+
+        .clean-string {
+            margin-top: 15px;
+            font-size: 1rem;
+            font-weight: normal;
+            color: #666;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            word-break: break-all;
+        }
+
+        .examples {
+            margin-top: 40px;
+            text-align: left;
+        }
+
+        .examples h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .example-list {
+            list-style: none;
+        }
+
+        .example-list li {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+
+        .example-list li:hover {
+            background: #f8f9fa;
+            color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .stats {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .stats h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .feature {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .feature i {
+            font-size: 2rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .feature-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .history {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .history-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Palindrome Checker</h1>
+        <p class="subtitle">Check if your text reads the same forwards and backwards</p>
+        
+        <div class="input-group">
+            <input type="text" id="inputText" placeholder="Enter text to check for palindrome..." autocomplete="off">
+        </div>
+        
+        <button class="btn" onclick="checkPalindrome()">Check Palindrome</button>
+        
+        <div class="result" id="result">
+            <!-- Result will be displayed here -->
+        </div>
+        
+        <div class="examples">
+            <h3>Try these examples:</h3>
+            <ul class="example-list" id="exampleList">
+                <li onclick="useExample('A man, a plan, a canal: Panama')">"A man, a plan, a canal: Panama" - ✅ True</li>
+                <li onclick="useExample('race car')">"race car" - ✅ True</li>
+                <li onclick="useExample('never odd or even')">"never odd or even" - ✅ True</li>
+                <li onclick="useExample('0_0 (: /-\\ :) 0-0')">"0_0 (: /-\ :) 0-0" - ✅ True</li>
+                <li onclick="useExample('1 eye for of 1 eye.')">"1 eye for of 1 eye." - ❌ False</li>
+                <li onclick="useExample('not a palindrome')">"not a palindrome" - ❌ False</li>
+                <li onclick="useExample('eye')">"eye" - ✅ True</li>
+                <li onclick="useExample('_eye')">"_eye" - ✅ True</li>
+            </ul>
+        </div>
+        
+        <div class="stats">
+            <h3>How it works:</h3>
+            <p>This palindrome checker:</p>
+            <ul>
+                <li>• Removes all non-alphanumeric characters (punctuation, spaces, symbols)</li>
+                <li>• Converts everything to lowercase</li>
+                <li>• Compares the cleaned string with its reverse</li>
+                <li>• Returns <strong>true</strong> if they match, <strong>false</strong> otherwise</li>
+            </ul>
+        </div>
+        
+        <div class="feature-list">
+            <div class="feature">
+                <div>🔧</div>
+                <h4>Robust Cleaning</h4>
+                <p>Handles punctuation, spaces, and special characters</p>
+            </div>
+            <div class="feature">
+                <div>⚡</div>
+                <h4>Fast Processing</h4>
+                <p>Instant results with optimized algorithms</p>
+            </div>
+            <div class="feature">
+                <div>📱</div>
+                <h4>Responsive Design</h4>
+                <p>Works perfectly on all devices</p>
+            </div>
+        </div>
+
+        <div class="history" id="historySection" style="display: none;">
+            <h3>Recent Checks:</h3>
+            <div id="historyList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced palindrome function
+        function palindrome(str) {
+            // Remove all non-alphanumeric characters and convert to lowercase
+            const cleanStr = str.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+            
+            // Return false if string is empty after cleaning
+            if (cleanStr.length === 0) return { isPalindrome: false, cleanString: cleanStr };
+            
+            // Check if the cleaned string is equal to its reverse
+            const isPal = cleanStr === cleanStr.split('').reverse().join('');
+            
+            return { isPalindrome: isPal, cleanString: cleanStr };
+        }
+
+        // UI Functions
+        function checkPalindrome() {
+            const input = document.getElementById('inputText');
+            const result = document.getElementById('result');
+            const text = input.value.trim();
+            
+            if (text === '') {
+                alert('Please enter some text to check!');
+                input.focus();
+                return;
+            }
+            
+            // Show processing state
+            result.className = 'result processing';
+            result.innerHTML = '🔄 Processing...';
+            result.style.display = 'block';
+            
+            // Simulate processing time for better UX
+            setTimeout(() => {
+                const { isPalindrome, cleanString } = palindrome(text);
+                
+                // Display result
+                if (isPalindrome) {
+                    result.className = 'result true';
+                    result.innerHTML = `
+                        <div style="font-size: 1.5rem; margin-bottom: 10px;">✅ PALINDROME FOUND!</div>
+                        <div><strong>Original:</strong> "${text}"</div>
+                        <div class="clean-string">
+                            <strong>Cleaned version:</strong> "${cleanString}"<br>
+                            <strong>Reversed:</strong> "${cleanString.split('').reverse().join('')}"
+                        </div>
+                        <div style="margin-top: 15px; font-size: 1rem;">
+                            This text reads the same forwards and backwards!
+                        </div>
+                    `;
+                } else {
+                    result.className = 'result false';
+                    result.innerHTML = `
+                        <div style="font-size: 1.5rem; margin-bottom: 10px;">❌ NOT A PALINDROME</div>
+                        <div><strong>Original:</strong> "${text}"</div>
+                        <div class="clean-string">
+                            <strong>Cleaned version:</strong> "${cleanString}"<br>
+                            <strong>Reversed:</strong> "${cleanString.split('').reverse().join('')}"
+                        </div>
+                        <div style="margin-top: 15px; font-size: 1rem;">
+                            This text does not read the same forwards and backwards.
+                        </div>
+                    `;
+                }
+                
+                // Add to history
+                addToHistory(text, isPalindrome, cleanString);
+            }, 800);
+        }
+
+        function useExample(text) {
+            document.getElementById('inputText').value = text;
+            document.getElementById('inputText').focus();
+            
+            // Auto-check the example
+            setTimeout(() => checkPalindrome(), 100);
+        }
+
+        let checkHistory = [];
+
+        function addToHistory(text, isPalindrome, cleanString) {
+            const historyItem = {
+                text: text,
+                isPalindrome: isPalindrome,
+                cleanString: cleanString,
+                timestamp: new Date().toLocaleTimeString()
+            };
+            
+            checkHistory.unshift(historyItem); // Add to beginning
+            checkHistory = checkHistory.slice(0, 5); // Keep only last 5 items
+            
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const historySection = document.getElementById('historySection');
+            const historyList = document.getElementById('historyList');
+            
+            if (checkHistory.length > 0) {
+                historySection.style.display = 'block';
+                historyList.innerHTML = checkHistory.map(item => `
+                    <div class="history-item">
+                        <strong>${item.isPalindrome ? '✅' : '❌'}</strong> 
+                        "${item.text.substring(0, 30)}${item.text.length > 30 ? '...' : ''}"
+                        <br><small>Cleaned: "${item.cleanString}" • ${item.timestamp}</small>
+                    </div>
+                `).join('');
+            } else {
+                historySection.style.display = 'none';
+            }
+        }
+
+        // Add keyboard support
+        document.getElementById('inputText').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPalindrome();
+            }
+        });
+
+        // Add input animation
+        document.getElementById('inputText').addEventListener('focus', function() {
+            this.style.transform = 'scale(1.02)';
+        });
+
+        document.getElementById('inputText').addEventListener('blur', function() {
+            this.style.transform = 'scale(1)';
+        });
+
+        // Initialize with focus on input and check a simple example
+        document.getElementById('inputText').focus();
+        
+        // Auto-check a simple example on load
+        setTimeout(() => {
+            useExample('racecar');
+        }, 1000);
+    </script>
+</body>
+</html>
