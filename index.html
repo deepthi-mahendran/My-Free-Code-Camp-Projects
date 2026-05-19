@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roguelike Dungeon Crawler</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e6e6e6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            max-width: 900px;
+            width: 100%;
+            background: rgba(30, 30, 46, 0.8);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            border: 1px solid #39394d;
+        }
+
+        .game-header {
+            background: #0f3460;
+            padding: 15px 20px;
+            text-align: center;
+            border-bottom: 2px solid #e94560;
+        }
+
+        .game-title {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            color: #e94560;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-subtitle {
+            font-size: 1rem;
+            color: #a9b7c6;
+        }
+
+        .game-content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .game-board {
+            flex: 1;
+            min-width: 300px;
+            background: #1e1e2e;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .stats-panel {
+            flex: 0 0 250px;
+            background: #1a1a2e;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            border: 1px solid #39394d;
+        }
+
+        .panel-section {
+            background: #16213e;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid #e94560;
+        }
+
+        .panel-title {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #e94560;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-title i {
+            font-size: 1.2rem;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #2d3746;
+        }
+
+        .stat-name {
+            color: #a9b7c6;
+        }
+
+        .stat-value {
+            font-weight: bold;
+        }
+
+        .health-bar, .xp-bar {
+            height: 20px;
+            background: #2d3746;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e94560, #ff6b8b);
+            border-radius: 10px;
+            transition: width 0.5s;
+        }
+
+        .xp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4cc9f0, #6fe7ff);
+            border-radius: 10px;
+            transition: width 0.5s;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .control-btn {
+            background: #0f3460;
+            border: none;
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            background: #e94560;
+            transform: translateY(-2px);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        #up { grid-column: 2; }
+        #down { grid-column: 2; grid-row: 3; }
+        #left { grid-column: 1; grid-row: 2; }
+        #right { grid-column: 3; grid-row: 2; }
+
+        .message-log {
+            flex: 1;
+            min-height: 150px;
+            background: #1a1a2e;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            overflow-y: auto;
+            border: 1px solid #39394d;
+            font-size: 0.9rem;
+        }
+
+        .message {
+            margin-bottom: 8px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            background: rgba(15, 52, 96, 0.3);
+        }
+
+        .message.enemy {
+            border-left: 4px solid #e94560;
+        }
+
+        .message.item {
+            border-left: 4px solid #4cc9f0;
+        }
+
+        .message.health {
+            border-left: 4px solid #4ade80;
+        }
+
+        .message.level {
+            border-left: 4px solid #f59e0b;
+        }
+
+        .dungeon-map {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 4px;
+            margin: 0 auto;
+        }
+
+        .cell {
+            width: 30px;
+            height: 30px;
+            background: #2d3746;
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .cell.revealed {
+            background: #39394d;
+        }
+
+        .cell.player {
+            background: #4cc9f0;
+            box-shadow: 0 0 10px #4cc9f0;
+        }
+
+        .cell.enemy {
+            background: #e94560;
+        }
+
+        .cell.boss {
+            background: #f59e0b;
+            box-shadow: 0 0 10px #f59e0b;
+        }
+
+        .cell.weapon {
+            background: #4ade80;
+        }
+
+        .cell.health {
+            background: #ef4444;
+        }
+
+        .cell.exit {
+            background: #8b5cf6;
+        }
+
+        .game-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal {
+            background: #1a1a2e;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            border: 2px solid #e94560;
+            box-shadow: 0 0 30px rgba(233, 69, 96, 0.5);
+        }
+
+        .modal h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #e94560;
+        }
+
+        .modal p {
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .modal-btn {
+            background: #e94560;
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .modal-btn:hover {
+            background: #ff6b8b;
+            transform: translateY(-3px);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .game-content {
+                flex-direction: column;
+            }
+            
+            .stats-panel {
+                flex: 0 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1 class="game-title">Dungeon Crawler</h1>
+            <p class="game-subtitle">Explore the dungeon, defeat enemies, and find the boss!</p>
+        </div>
+        
+        <div class="game-content">
+            <div class="game-board">
+                <div class="dungeon-map" id="map"></div>
+                
+                <div class="controls">
+                    <button class="control-btn" id="up">↑</button>
+                    <button class="control-btn" id="left">←</button>
+                    <button class="control-btn" id="right">→</button>
+                    <button class="control-btn" id="down">↓</button>
+                </div>
+                
+                <div class="message-log" id="messages"></div>
+            </div>
+            
+            <div class="stats-panel">
+                <div class="panel-section">
+                    <h3 class="panel-title">Player Stats</h3>
+                    <div class="stat">
+                        <span class="stat-name">Health:</span>
+                        <span class="stat-value" id="health">100/100</span>
+                    </div>
+                    <div class="health-bar">
+                        <div class="health-fill" id="health-bar" style="width: 100%"></div>
+                    </div>
+                    
+                    <div class="stat">
+                        <span class="stat-name">Level:</span>
+                        <span class="stat-value" id="level">1</span>
+                    </div>
+                    
+                    <div class="stat">
+                        <span class="stat-name">XP:</span>
+                        <span class="stat-value" id="xp">0/20</span>
+                    </div>
+                    <div class="xp-bar">
+                        <div class="xp-fill" id="xp-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="panel-section">
+                    <h3 class="panel-title">Weapon</h3>
+                    <div class="stat">
+                        <span class="stat-name">Current:</span>
+                        <span class="stat-value" id="weapon">Dagger</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-name">Damage:</span>
+                        <span class="stat-value" id="damage">2-4</span>
+                    </div>
+                </div>
+                
+                <div class="panel-section">
+                    <h3 class="panel-title">Game Info</h3>
+                    <p style="font-size: 0.9rem; line-height: 1.4; color: #a9b7c6;">
+                        Move with arrow buttons. Defeat enemies to gain XP. Find weapons and health potions. Beat the boss to win!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="game-overlay hidden" id="game-overlay">
+        <div class="modal">
+            <h2 id="modal-title">Game Over</h2>
+            <p id="modal-message">You have been defeated by the enemies of the dungeon.</p>
+            <button class="modal-btn" id="restart-btn">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Game constants
+        const MAP_SIZE = 10;
+        const PLAYER_START_HEALTH = 100;
+        const ENEMY_HEALTH_MULTIPLIER = 15;
+        const BOSS_HEALTH_MULTIPLIER = 40;
+        const XP_PER_LEVEL = 20;
+        const VISION_RADIUS = 2;
+
+        // Game state
+        let gameState = {
+            player: {
+                x: 0,
+                y: 0,
+                health: PLAYER_START_HEALTH,
+                maxHealth: PLAYER_START_HEALTH,
+                level: 1,
+                xp: 0,
+                weapon: 'Dagger',
+                baseDamage: [2, 4],
+                weaponDamage: [0, 0]
+            },
+            map: [],
+            revealed: [],
+            enemies: [],
+            items: [],
+            boss: null,
+            gameOver: false,
+            messages: []
+        };
+
+        // Weapon definitions
+        const weapons = [
+            { name: 'Dagger', damage: [0, 0] },
+            { name: 'Sword', damage: [2, 4] },
+            { name: 'Axe', damage: [4, 6] },
+            { name: 'Magic Staff', damage: [6, 8] }
+        ];
+
+        // Initialize the game
+        function initGame() {
+            gameState = {
+                player: {
+                    x: Math.floor(Math.random() * MAP_SIZE),
+                    y: Math.floor(Math.random() * MAP_SIZE),
+                    health: PLAYER_START_HEALTH,
+                    maxHealth: PLAYER_START_HEALTH,
+                    level: 1,
+                    xp: 0,
+                    weapon: 'Dagger',
+                    baseDamage: [2, 4],
+                    weaponDamage: [0, 0]
+                },
+                map: [],
+                revealed: [],
+                enemies: [],
+                items: [],
+                boss: null,
+                gameOver: false,
+                messages: []
+            };
+
+            // Initialize empty map
+            for (let y = 0; y < MAP_SIZE; y++) {
+                gameState.map[y] = [];
+                gameState.revealed[y] = [];
+                for (let x = 0; x < MAP_SIZE; x++) {
+                    gameState.map[y][x] = 'empty';
+                    gameState.revealed[y][x] = false;
+                }
+            }
+
+            // Place player
+            gameState.map[gameState.player.y][gameState.player.x] = 'player';
+
+            // Generate enemies (5-8)
+            const numEnemies = 5 + Math.floor(Math.random() * 4);
+            for (let i = 0; i < numEnemies; i++) {
+                placeRandomEntity('enemy');
+            }
+
+            // Generate weapons (2-3)
+            const numWeapons = 2 + Math.floor(Math.random() * 2);
+            for (let i = 0; i < numWeapons; i++) {
+                placeRandomEntity('weapon');
+            }
+
+            // Generate health potions (3-5)
+            const numHealth = 3 + Math.floor(Math.random() * 3);
+            for (let i = 0; i < numHealth; i++) {
+                placeRandomEntity('health');
+            }
+
+            // Place boss
+            placeRandomEntity('boss');
+
+            // Reveal initial area
+            updateVision();
+
+            // Render the game
+            renderGame();
+            addMessage("Welcome to the dungeon! Move with the arrow buttons. Defeat enemies and find the boss!", "level");
+        }
+
+        // Place a random entity on the map
+        function placeRandomEntity(type) {
+            let placed = false;
+            while (!placed) {
+                const x = Math.floor(Math.random() * MAP_SIZE);
+                const y = Math.floor(Math.random() * MAP_SIZE);
+                
+                if (gameState.map[y][x] === 'empty') {
+                    gameState.map[y][x] = type;
+                    
+                    if (type === 'enemy') {
+                        gameState.enemies.push({
+                            x, y,
+                            health: ENEMY_HEALTH_MULTIPLIER * (1 + Math.floor(Math.random() * 3)),
+                            level: 1 + Math.floor(Math.random() * 3)
+                        });
+                    } else if (type === 'boss') {
+                        gameState.boss = {
+                            x, y,
+                            health: BOSS_HEALTH_MULTIPLIER,
+                            level: 5
+                        };
+                    } else if (type === 'weapon') {
+                        gameState.items.push({ x, y, type: 'weapon' });
+                    } else if (type === 'health') {
+                        gameState.items.push({ x, y, type: 'health' });
+                    }
+                    
+                    placed = true;
+                }
+            }
+        }
+
+        // Update player's vision
+        function updateVision() {
+            for (let y = 0; y < MAP_SIZE; y++) {
+                for (let x = 0; x < MAP_SIZE; x++) {
+                    const distance = Math.abs(x - gameState.player.x) + Math.abs(y - gameState.player.y);
+                    if (distance <= VISION_RADIUS) {
+                        gameState.revealed[y][x] = true;
+                    }
+                }
+            }
+        }
+
+        // Move player
+        function movePlayer(dx, dy) {
+            if (gameState.gameOver) return;
+            
+            const newX = gameState.player.x + dx;
+            const newY = gameState.player.y + dy;
+            
+            // Check boundaries
+            if (newX < 0 || newX >= MAP_SIZE || newY < 0 || newY >= MAP_SIZE) {
+                addMessage("You can't move beyond the dungeon walls.", "enemy");
+                return;
+            }
+            
+            const targetCell = gameState.map[newY][newX];
+            
+            // Check if cell contains an enemy
+            if (targetCell === 'enemy') {
+                const enemy = gameState.enemies.find(e => e.x === newX && e.y === newY);
+                if (enemy) {
+                    fightEnemy(enemy);
+                    return;
+                }
+            }
+            
+            // Check if cell contains the boss
+            if (targetCell === 'boss') {
+                fightBoss();
+                return;
+            }
+            
+            // Check if cell contains an item
+            if (targetCell === 'weapon' || targetCell === 'health') {
+                collectItem(newX, newY);
+            }
+            
+            // Move player
+            gameState.map[gameState.player.y][gameState.player.x] = 'empty';
+            gameState.player.x = newX;
+            gameState.player.y = newY;
+            gameState.map[newY][newX] = 'player';
+            
+            // Update vision
+            updateVision();
+            
+            // Render the game
+            renderGame();
+        }
+
+        // Fight an enemy
+        function fightEnemy(enemy) {
+            addMessage(`You encounter a level ${enemy.level} enemy!`, "enemy");
+            
+            let playerHealth = gameState.player.health;
+            let enemyHealth = enemy.health;
+            
+            // Calculate player damage
+            const playerMinDamage = gameState.player.baseDamage[0] + gameState.player.weaponDamage[0] + gameState.player.level;
+            const playerMaxDamage = gameState.player.baseDamage[1] + gameState.player.weaponDamage[1] + gameState.player.level;
+            const playerDamage = playerMinDamage + Math.floor(Math.random() * (playerMaxDamage - playerMinDamage + 1));
+            
+            // Calculate enemy damage
+            const enemyDamage = enemy.level + Math.floor(Math.random() * 3);
+            
+            // Fight until one is defeated
+            while (playerHealth > 0 && enemyHealth > 0) {
+                // Player attacks
+                enemyHealth -= playerDamage;
+                addMessage(`You hit the enemy for ${playerDamage} damage.`, "item");
+                
+                if (enemyHealth <= 0) break;
+                
+                // Enemy attacks
+                playerHealth -= enemyDamage;
+                addMessage(`The enemy hits you for ${enemyDamage} damage.`, "enemy");
+            }
+            
+            // Update game state
+            gameState.player.health = playerHealth;
+            
+            if (playerHealth <= 0) {
+                gameOver(false);
+                return;
+            }
+            
+            // Enemy defeated
+            addMessage(`You defeated the level ${enemy.level} enemy!`, "level");
+            
+            // Remove enemy from map and array
+            gameState.map[enemy.y][enemy.x] = 'empty';
+            gameState.enemies = gameState.enemies.filter(e => e !== enemy);
+            
+            // Gain XP
+            const xpGained = enemy.level * 5;
+            gameState.player.xp += xpGained;
+            addMessage(`You gained ${xpGained} XP.`, "level");
+            
+            // Check for level up
+            checkLevelUp();
+            
+            // Move player to enemy's position
+            gameState.map[gameState.player.y][gameState.player.x] = 'empty';
+            gameState.player.x = enemy.x;
+            gameState.player.y = enemy.y;
+            gameState.map[gameState.player.y][gameState.player.x] = 'player';
+            
+            // Update vision and render
+            updateVision();
+            renderGame();
+        }
+
+        // Fight the boss
+        function fightBoss() {
+            addMessage("You face the Dungeon Boss! Prepare for a tough fight!", "enemy");
+            
+            let playerHealth = gameState.player.health;
+            let bossHealth = gameState.boss.health;
+            
+            // Calculate player damage
+            const playerMinDamage = gameState.player.baseDamage[0] + gameState.player.weaponDamage[0] + gameState.player.level;
+            const playerMaxDamage = gameState.player.baseDamage[1] + gameState.player.weaponDamage[1] + gameState.player.level;
+            
+            // Fight until one is defeated
+            while (playerHealth > 0 && bossHealth > 0) {
+                // Player attacks
+                const playerDamage = playerMinDamage + Math.floor(Math.random() * (playerMaxDamage - playerMinDamage + 1));
+                bossHealth -= playerDamage;
+                addMessage(`You hit the boss for ${playerDamage} damage.`, "item");
+                
+                if (bossHealth <= 0) break;
+                
+                // Boss attacks
+                const bossDamage = gameState.boss.level + Math.floor(Math.random() * 6);
+                playerHealth -= bossDamage;
+                addMessage(`The boss hits you for ${bossDamage} damage.`, "enemy");
+            }
+            
+            // Update game state
+            gameState.player.health = playerHealth;
+            
+            if (playerHealth <= 0) {
+                gameOver(false);
+                return;
+            }
+            
+            // Boss defeated - player wins!
+            gameOver(true);
+        }
+
+        // Collect an item
+        function collectItem(x, y) {
+            const item = gameState.items.find(i => i.x === x && i.y === y);
+            
+            if (item) {
+                if (item.type === 'weapon') {
+                    // Find next weapon
+                    const currentWeaponIndex = weapons.findIndex(w => w.name === gameState.player.weapon);
+                    if (currentWeaponIndex < weapons.length - 1) {
+                        const newWeapon = weapons[currentWeaponIndex + 1];
+                        gameState.player.weapon = newWeapon.name;
+                        gameState.player.weaponDamage = newWeapon.damage;
+                        addMessage(`You found a ${newWeapon.name}! Your damage increased.`, "item");
+                    }
+                } else if (item.type === 'health') {
+                    const healthRestored = 20 + Math.floor(Math.random() * 20);
+                    gameState.player.health = Math.min(gameState.player.maxHealth, gameState.player.health + healthRestored);
+                    addMessage(`You found a health potion and restored ${healthRestored} health!`, "health");
+                }
+                
+                // Remove item from map and array
+                gameState.map[y][x] = 'empty';
+                gameState.items = gameState.items.filter(i => i !== item);
+            }
+        }
+
+        // Check if player levels up
+        function checkLevelUp() {
+            const xpNeeded = gameState.player.level * XP_PER_LEVEL;
+            
+            if (gameState.player.xp >= xpNeeded) {
+                gameState.player.level++;
+                gameState.player.xp -= xpNeeded;
+                gameState.player.maxHealth += 10;
+                gameState.player.health = gameState.player.maxHealth;
+                addMessage(`You reached level ${gameState.player.level}! Your health has increased.`, "level");
+            }
+        }
+
+        // Game over
+        function gameOver(victory) {
+            gameState.gameOver = true;
+            
+            const modal = document.getElementById('game-overlay');
+            const title = document.getElementById('modal-title');
+            const message = document.getElementById('modal-message');
+            
+            if (victory) {
+                title.textContent = "Victory!";
+                message.textContent = `You defeated the Dungeon Boss and conquered the dungeon! You reached level ${gameState.player.level}.`;
+            } else {
+                title.textContent = "Game Over";
+                message.textContent = "You have been defeated by the enemies of the dungeon.";
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        // Add message to log
+        function addMessage(text, type = "") {
+            gameState.messages.push({ text, type });
+            if (gameState.messages.length > 10) {
+                gameState.messages.shift();
+            }
+            
+            const messagesElement = document.getElementById('messages');
+            messagesElement.innerHTML = '';
+            
+            gameState.messages.forEach(msg => {
+                const messageElement = document.createElement('div');
+                messageElement.className = `message ${msg.type}`;
+                messageElement.textContent = msg.text;
+                messagesElement.appendChild(messageElement);
+            });
+            
+            messagesElement.scrollTop = messagesElement.scrollHeight;
+        }
+
+        // Render the game
+        function renderGame() {
+            // Render map
+            const mapElement = document.getElementById('map');
+            mapElement.innerHTML = '';
+            
+            for (let y = 0; y < MAP_SIZE; y++) {
+                for (let x = 0; x < MAP_SIZE; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    
+                    if (gameState.revealed[y][x]) {
+                        cell.classList.add('revealed');
+                        
+                        switch (gameState.map[y][x]) {
+                            case 'player':
+                                cell.classList.add('player');
+                                cell.textContent = 'P';
+                                break;
+                            case 'enemy':
+                                cell.classList.add('enemy');
+                                cell.textContent = 'E';
+                                break;
+                            case 'boss':
+                                cell.classList.add('boss');
+                                cell.textContent = 'B';
+                                break;
+                            case 'weapon':
+                                cell.classList.add('weapon');
+                                cell.textContent = 'W';
+                                break;
+                            case 'health':
+                                cell.classList.add('health');
+                                cell.textContent = 'H';
+                                break;
+                            default:
+                                cell.textContent = '.';
+                        }
+                    } else {
+                        cell.textContent = '?';
+                    }
+                    
+                    mapElement.appendChild(cell);
+                }
+            }
+            
+            // Update stats
+            document.getElementById('health').textContent = 
+                `${gameState.player.health}/${gameState.player.maxHealth}`;
+            document.getElementById('health-bar').style.width = 
+                `${(gameState.player.health / gameState.player.maxHealth) * 100}%`;
+            
+            document.getElementById('level').textContent = gameState.player.level;
+            
+            const xpNeeded = gameState.player.level * XP_PER_LEVEL;
+            document.getElementById('xp').textContent = `${gameState.player.xp}/${xpNeeded}`;
+            document.getElementById('xp-bar').style.width = 
+                `${(gameState.player.xp / xpNeeded) * 100}%`;
+            
+            document.getElementById('weapon').textContent = gameState.player.weapon;
+            
+            const minDamage = gameState.player.baseDamage[0] + gameState.player.weaponDamage[0] + gameState.player.level;
+            const maxDamage = gameState.player.baseDamage[1] + gameState.player.weaponDamage[1] + gameState.player.level;
+            document.getElementById('damage').textContent = `${minDamage}-${maxDamage}`;
+        }
+
+        // Event listeners
+        document.getElementById('up').addEventListener('click', () => movePlayer(0, -1));
+        document.getElementById('down').addEventListener('click', () => movePlayer(0, 1));
+        document.getElementById('left').addEventListener('click', () => movePlayer(-1, 0));
+        document.getElementById('right').addEventListener('click', () => movePlayer(1, 0));
+        
+        document.getElementById('restart-btn').addEventListener('click', () => {
+            document.getElementById('game-overlay').classList.add('hidden');
+            initGame();
+        });
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (gameState.gameOver) return;
+            
+            switch(e.key) {
+                case 'ArrowUp':
+                    movePlayer(0, -1);
+                    break;
+                case 'ArrowDown':
+                    movePlayer(0, 1);
+                    break;
+                case 'ArrowLeft':
+                    movePlayer(-1, 0);
+                    break;
+                case 'ArrowRight':
+                    movePlayer(1, 0);
+                    break;
+            }
+        });
+
+        // Initialize the game
+        initGame();
+    </script>
+</body>
+
+</html>
